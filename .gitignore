@@ -1,0 +1,16 @@
+# Build output
+publish/
+installer/
+EasyNote/bin/
+EasyNote/obj/
+
+# Visual Studio / Rider
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
