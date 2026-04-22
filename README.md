@@ -2,6 +2,10 @@
 
 `EasyNote` 是一个面向 Windows 的桌面便签 / 待办工具，适合用来快速记录待办事项，并以轻量常驻的方式放在桌面上使用。
 
+## 软件预览
+
+<img src="docs/images/easynote-preview.png" alt="EasyNote 软件预览图" width="340" />
+
 ## 当前支持功能
 
 - 桌面便签式窗口显示
