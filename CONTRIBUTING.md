@@ -24,6 +24,12 @@ dotnet build .\easy-note-wpf.sln
 .\build-windows-installer.ps1
 ```
 
+如果你的改动影响 Windows 安装包行为，建议再补充验证：
+
+- 安装器是否默认落到 `C:\Program Files\EasyNote`
+- 安装器是否正常请求管理员权限
+- 安装完成后是否可直接启动，且不再弹出 .NET 运行时缺失提示
+
 ## 提交建议
 
 - 优先修复明确问题，避免顺手改动过大

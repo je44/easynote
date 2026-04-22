@@ -58,6 +58,19 @@ dotnet run --project .\EasyNote\EasyNote.csproj
 
 - 发布目录：`publish\`
 - 可执行安装文件：`installer\EasyNoteSetup.exe`
+- 发布形态：`win-x64` 单文件自包含
+
+当前安装包行为：
+
+- 安装器默认安装到 `C:\Program Files\EasyNote`
+- 安装时会请求管理员权限
+- 保留安装目录页，允许手动修改目标目录
+- 目标机器无需额外安装 .NET 运行时即可启动程序
+
+已知前提：
+
+- 应用使用 `Microsoft.Web.WebView2` 承载 Web 内容
+- 如果目标系统没有可用的 WebView2 Runtime，仍需要由系统补齐该运行时
 
 如果你想手动构建基于 `Release` 配置的产物，也可以执行：
 

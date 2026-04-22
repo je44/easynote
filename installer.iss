@@ -22,14 +22,18 @@ AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={localappdata}\Programs\{#MyAppName}
+DefaultDirName={commonpf64}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 OutputDir=installer
 OutputBaseFilename={#OutputBaseFilename}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
+UsePreviousAppDir=no
+DisableDirPage=no
+AlwaysShowDirOnReadyPage=yes
+ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
@@ -40,16 +44,7 @@ Name: "desktopicon"; Description: "Create desktop shortcut"; GroupDescription: "
 Name: "startupicon"; Description: "Launch on startup"; GroupDescription: "Additional tasks:"; Flags: unchecked
 
 [Files]
-Source: "{#PublishDir}\EasyNote.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\EasyNote.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\EasyNote.deps.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\EasyNote.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\Hardcodet.NotifyIcon.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\Microsoft.Web.WebView2.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PublishDir}\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#PublishDir}\wwwroot\*"; DestDir: "{app}\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.xml"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -57,7 +52,7 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Registry]
-Root: HKCU; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DesktopMemoBoard"; ValueData: """{app}\{#MyAppExeName}"" --autostart"; Flags: uninsdeletevalue; Tasks: startupicon
+Root: HKA; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DesktopMemoBoard"; ValueData: """{app}\{#MyAppExeName}"" --autostart"; Flags: uninsdeletevalue; Tasks: startupicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
