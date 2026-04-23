@@ -1,0 +1,61 @@
+# EasyNote
+
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+
+EasyNote는 Windows용 경량 데스크톱 메모 / 할 일 앱입니다.
+데스크톱에 붙여 두고 빠르게 쓰는 흐름에 맞춰 설계되었으며,
+트레이 제어, 전역 단축키, 로컬 저장을 지원합니다.
+WebView2는 필요하지 않습니다.
+
+## 미리보기
+
+<img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
+
+## 주요 기능
+
+- 데스크톱 밀착형 노트 UI
+- 할 일 / 완료 보기 전환
+- 항목 추가, 고정, 완료, 복원, 삭제
+- 트레이 아이콘 빠른 동작
+- `Ctrl + Alt + N` 전역 표시 / 숨기기
+- 자동 저장
+- 창 위치, 크기, 투명도 유지
+- `data\` 폴더 기반 포터블 모드
+
+## 소스에서 실행
+
+```powershell
+dotnet restore .\easy-note-wpf.sln
+dotnet run --project .\EasyNote\EasyNote.csproj
+```
+
+## 내장 셀프 테스트
+
+```powershell
+dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test
+```
+
+## 패키징
+
+설치 파일과 포터블 패키지 생성:
+
+```powershell
+.\build-windows-installer.ps1
+```
+
+포터블 패키지만 생성:
+
+```powershell
+.\build-windows-installer.ps1 -SkipInstaller
+```
+
+## 데이터 위치
+
+- 일반 모드: `%AppData%\easy-note`
+- 포터블 모드: 앱 폴더 아래 `data\`
+
+## 기술 스택
+
+- WPF
+- .NET 10
+- `Hardcodet.NotifyIcon.Wpf`
