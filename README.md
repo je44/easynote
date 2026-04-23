@@ -2,6 +2,71 @@
 
 `EasyNote` 是一个面向 Windows 的轻量桌面便签 / 待办工具，适合快速记录待办事项，并以常驻桌面的方式随手使用。
 
+## Languages
+
+### English
+
+EasyNote is a lightweight desktop sticky-note and todo app for Windows.
+It stays close to the desktop, supports tray control, global hotkeys,
+portable mode, and local data persistence without requiring WebView2.
+
+Key features:
+
+- Pending / completed views
+- Add, pin, complete, restore, and delete todos
+- Tray icon with quick actions
+- `Ctrl + Alt + N` global show / hide hotkey
+- Auto-save for todos
+- Window position, size, and opacity persistence
+- Optional portable mode with local `data/` storage
+
+Run from source:
+
+```powershell
+dotnet restore .\easy-note-wpf.sln
+dotnet run --project .\EasyNote\EasyNote.csproj
+```
+
+Run the built-in self-test:
+
+```powershell
+dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test
+```
+
+### 日本語
+
+EasyNote は Windows 向けの軽量なデスクトップ付箋 / ToDo アプリです。
+デスクトップ常駐型の使い方を想定しており、トレイ操作、グローバル
+ショートカット、ポータブル実行、ローカル保存に対応しています。
+WebView2 は不要です。
+
+主な機能:
+
+- 未完了 / 完了ビューの切り替え
+- ToDo の追加、ピン留め、完了、復元、削除
+- トレイアイコンからの操作
+- `Ctrl + Alt + N` による表示 / 非表示
+- ToDo の自動保存
+- ウィンドウ位置、サイズ、透明度の保存
+- `data/` フォルダを使うポータブル版
+
+### 한국어
+
+EasyNote는 Windows용 경량 데스크톱 메모 / 할 일 앱입니다.
+데스크톱에 붙여 두고 빠르게 사용하는 흐름에 맞춰져 있으며,
+트레이 제어, 전역 단축키, 포터블 실행, 로컬 데이터 저장을 지원합니다.
+WebView2는 필요하지 않습니다.
+
+주요 기능:
+
+- 할 일 / 완료 보기 전환
+- 항목 추가, 고정, 완료, 복원, 삭제
+- 트레이 아이콘 빠른 동작
+- `Ctrl + Alt + N` 전역 표시 / 숨기기
+- 할 일 자동 저장
+- 창 위치, 크기, 투명도 유지
+- `data/` 폴더를 사용하는 포터블 모드
+
 ## 软件预览
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote 软件预览图" width="340" />
