@@ -22,6 +22,7 @@ public partial class App : System.Windows.Application
             WindowEventLogger.Write("App", $"DispatcherUnhandledException | {args.Exception}");
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
             WindowEventLogger.Write("App", $"UnhandledException | {args.ExceptionObject}");
+        SessionEnding += OnSessionEnding;
 
         _mainWindow = new MainWindow();
         _mainWindow.Show();
@@ -62,8 +63,15 @@ public partial class App : System.Windows.Application
     private void OnTrayQuit(object sender, RoutedEventArgs e)
     {
         WindowEventLogger.Write("App", "OnTrayQuit");
-        _trayIcon?.Dispose();
+        _mainWindow?.PersistWindowPlacement("TrayQuit");
+        DisposeTrayIcon();
         Shutdown();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        DisposeTrayIcon();
+        base.OnExit(e);
     }
 
     private System.Windows.Controls.MenuItem? FindAutostartMenuItem()
@@ -95,5 +103,17 @@ public partial class App : System.Windows.Application
         {
             key.DeleteValue(AppRunName, false);
         }
+    }
+
+    private void OnSessionEnding(object? sender, SessionEndingCancelEventArgs e)
+    {
+        WindowEventLogger.Write("App", $"OnSessionEnding | reason={e.ReasonSessionEnding}");
+        _mainWindow?.PersistWindowPlacement("SessionEnding");
+    }
+
+    private void DisposeTrayIcon()
+    {
+        _trayIcon?.Dispose();
+        _trayIcon = null;
     }
 }

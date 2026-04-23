@@ -106,6 +106,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private IntPtr _hwnd;
     private int _originalExStyle;
     private bool _hiddenByUser;
+    private bool _pendingDesktopReenterAfterResize;
     private bool _isSettingsOpen;
     private double _opacityPercent = 75;
     private string _draftText = string.Empty;
@@ -301,7 +302,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         LogWindowEvent("BeginDrag.Start");
         try { DragMove(); } catch { }
-        WindowStateManager.SavePosition(Left, Top, Width, Height);
+        PersistWindowPlacement("BeginDrag");
         // 不立即重新嵌入，等用户下次与窗口交互时再嵌入，避免被 WorkerW 压住
         LogWindowEvent("BeginDrag.Done");
     }
@@ -310,7 +311,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         LogWindowEvent("HideWindow.Before");
         _hiddenByUser = true;
-        WindowStateManager.SavePosition(Left, Top, Width, Height);
+        PersistWindowPlacement("HideWindow");
         Hide();
         LogWindowEvent("HideWindow.After");
     }
@@ -343,7 +344,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var waTop = info.WorkArea.Top / scaleY;
         Left = waRight - Width - 20;
         Top = waTop + 20;
-        WindowStateManager.SavePosition(Left, Top, Width, Height);
+        PersistWindowPlacement("DockToTopRight");
         ReenterDesktopModeSoon();
         LogWindowEvent("DockToTopRight.Done");
     }
@@ -351,12 +352,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public void ResizeHeight(double height)
     {
         Height = Math.Clamp(height, MinHeight, 920);
-        WindowStateManager.SavePosition(Left, Top, Width, Height);
+        PersistWindowPlacement("ResizeHeight");
     }
 
     public void SetWindowOpacity(double opacityPercent)
     {
         OpacityPercent = opacityPercent;
+    }
+
+    public void PersistWindowPlacement(string reason)
+    {
+        var saved = WindowStateManager.SavePosition(this);
+        LogWindowEvent("PersistWindowPlacement", $"Reason={reason},Saved={saved}");
     }
 
     private void ReenterDesktopModeSoon()
@@ -662,6 +669,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void ResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton != MouseButtonState.Pressed) return;
+        _pendingDesktopReenterAfterResize = true;
         EnsureInteractiveMode();
         // 发送 WM_NCLBUTTONDOWN + HTBOTTOM，让系统处理底部拖拽 resize
         const int WM_NCLBUTTONDOWN = 0x00A1;
@@ -710,13 +718,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             }
         }
 
-        if (msg == WM_EXITSIZEMOVE && !_hiddenByUser)
+        if (msg == WM_EXITSIZEMOVE)
         {
-            WindowStateManager.SavePosition(Left, Top, Width, Height);
+            if (!_hiddenByUser)
+            {
+                PersistWindowPlacement("WM_EXITSIZEMOVE");
+                if (_pendingDesktopReenterAfterResize)
+                    ReenterDesktopModeSoon();
+            }
+
+            _pendingDesktopReenterAfterResize = false;
             LogWindowEvent("WndProc.WM_EXITSIZEMOVE");
         }
 
         return IntPtr.Zero;
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        PersistWindowPlacement("OnClosing");
+        LogWindowEvent("OnClosing");
+        base.OnClosing(e);
     }
 
     protected override void OnClosed(EventArgs e)

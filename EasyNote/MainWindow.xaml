@@ -328,7 +328,7 @@
                                 CornerRadius="12"
                                 Padding="{TemplateBinding Padding}">
                             <ScrollViewer x:Name="PART_ContentHost"
-                                          Margin="0"
+                                          Margin="0,4,0,0"
                                           Padding="0"
                                           VerticalAlignment="Top">
                                 <ScrollViewer.Resources>
@@ -913,29 +913,53 @@
                                     CornerRadius="12"
                                     Padding="14,10">
                                 <Grid>
-                                    <TextBox Background="Transparent"
-                                             BorderThickness="0"
-                                             Foreground="#F3F6FC"
-                                             CaretBrush="#F3F6FC"
-                                             FontSize="15"
-                                             Padding="0"
-                                             VerticalContentAlignment="Top"
-                                             TextAlignment="Left"
-                                             PreviewKeyDown="DraftTextBox_PreviewKeyDown"
-                                             Text="{Binding DraftText, UpdateSourceTrigger=PropertyChanged}"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Disabled" />
-                                     <TextBlock VerticalAlignment="Top"
+                                     <TextBox x:Name="DraftInputTextBox"
+                                              Style="{StaticResource InputTextBoxStyle}"
+                                              Background="Transparent"
+                                              BorderBrush="Transparent"
+                                              BorderThickness="0"
+                                              Foreground="#F3F6FC"
+                                              CaretBrush="#F3F6FC"
+                                              FontSize="15"
+                                              TextBlock.LineHeight="22"
+                                              TextBlock.LineStackingStrategy="BlockLineHeight"
+                                              Padding="0"
+                                              VerticalContentAlignment="Top"
+                                              TextAlignment="Left"
+                                              PreviewKeyDown="DraftTextBox_PreviewKeyDown"
+                                              Text="{Binding DraftText, UpdateSourceTrigger=PropertyChanged}"
+                                              AcceptsReturn="True"
+                                              TextWrapping="Wrap"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled" />
+                                     <TextBlock Margin="0,7,0,0"
+                                                VerticalAlignment="Top"
                                                 HorizontalAlignment="Left"
                                                 Foreground="#93A0BB"
                                                 FontSize="15"
-                                                TextAlignment="Left"
-                                                IsHitTestVisible="False"
-                                                Text="写点要做的事"
-                                                Visibility="{Binding DraftText, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}" />
-                                </Grid>
+                                                 TextBlock.LineHeight="22"
+                                                 TextBlock.LineStackingStrategy="BlockLineHeight"
+                                                 TextAlignment="Left"
+                                                 IsHitTestVisible="False"
+                                                 Text="写点要做的事">
+                                         <TextBlock.Style>
+                                             <Style TargetType="TextBlock">
+                                                 <Setter Property="Visibility" Value="Collapsed" />
+                                                 <Style.Triggers>
+                                                     <MultiDataTrigger>
+                                                         <MultiDataTrigger.Conditions>
+                                                             <Condition Binding="{Binding DraftText, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"
+                                                                        Value="{x:Static Visibility.Visible}" />
+                                                             <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=DraftInputTextBox}"
+                                                                        Value="False" />
+                                                         </MultiDataTrigger.Conditions>
+                                                         <Setter Property="Visibility" Value="Visible" />
+                                                     </MultiDataTrigger>
+                                                 </Style.Triggers>
+                                             </Style>
+                                         </TextBlock.Style>
+                                     </TextBlock>
+                                 </Grid>
                             </Border>
                         </Grid>
 
