@@ -1,16 +1,36 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 
 namespace EasyNote;
 
-internal record SavedWindowPlacement(double X, double Y, double Width, double Height);
+internal sealed class SavedWindowPlacement
+{
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Width { get; set; }
+    public double Height { get; set; }
+    public double? OpacityPercent { get; set; }
+
+    [JsonConstructor]
+    public SavedWindowPlacement()
+    {
+    }
+
+    public SavedWindowPlacement(double x, double y, double width, double height, double? opacityPercent = null)
+    {
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+        OpacityPercent = opacityPercent;
+    }
+}
 
 internal static class WindowStateManager
 {
-    private static readonly string StatePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "easy-note", "window-state.json");
+    private static readonly string StatePath = Path.Combine(AppPaths.AppDataDirectory, "window-state.json");
 
     private const double MaxWindowWidth = 800;
     private const double MaxWindowHeight = 920;
@@ -20,18 +40,21 @@ internal static class WindowStateManager
         if (!TryBuildPlacement(window, out var placement))
             return false;
 
-        return SavePosition(placement.X, placement.Y, placement.Width, placement.Height);
+        return SavePosition(placement.X, placement.Y, placement.Width, placement.Height, placement.OpacityPercent);
     }
 
-    public static bool SavePosition(double x, double y, double width, double height)
+    public static bool SavePosition(double x, double y, double width, double height, double? opacityPercent = null)
     {
         if (!IsFinite(x) || !IsFinite(y) || !IsFinite(width) || !IsFinite(height) || width <= 0 || height <= 0)
+            return false;
+
+        if (opacityPercent is double opacity && (!IsFinite(opacity) || opacity < 0))
             return false;
 
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(StatePath)!);
-            var json = JsonSerializer.Serialize(new SavedWindowPlacement(x, y, width, height));
+            var json = JsonSerializer.Serialize(new SavedWindowPlacement(x, y, width, height, opacityPercent));
             File.WriteAllText(StatePath, json);
             return true;
         }
@@ -62,6 +85,9 @@ internal static class WindowStateManager
             window.Top = Math.Clamp(state.Y, screenY, maxY);
             window.Width = width;
             window.Height = height;
+
+            if (window is MainWindow mainWindow && state.OpacityPercent is double opacityPercent)
+                mainWindow.OpacityPercent = opacityPercent;
         }
         catch
         {
@@ -105,7 +131,8 @@ internal static class WindowStateManager
         if (bounds.Width <= 0 || bounds.Height <= 0)
             return false;
 
-        placement = new SavedWindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
+        double? opacityPercent = window is MainWindow mainWindow ? mainWindow.OpacityPercent : null;
+        placement = new SavedWindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height, opacityPercent);
         return true;
     }
 

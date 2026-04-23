@@ -26,8 +26,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern IntPtr SetWindowLongPtr64(IntPtr hwnd, int index, IntPtr value);
     [DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr hwnd, int id, uint mod, uint key);
     [DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr hwnd, int id);
-    [DllImport("user32.dll")] private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint msg, IntPtr wp, IntPtr lp, uint flags, uint timeout, out IntPtr result);
-    [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc proc, IntPtr lp);
+    [DllImport("user32.dll")] private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hmon, ref MonitorInfo info);
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
@@ -64,8 +63,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         public uint Flags;
     }
 
-    private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lp);
-
     private const int GWL_STYLE = -16;
     private const int GWL_EXSTYLE = -20;
     private const int GWLP_HWNDPARENT = -8;
@@ -92,10 +89,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     #endregion
 
-    private static readonly string TodoStatePath = System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "easy-note",
-        "todos.json");
+    private static readonly string TodoStatePath = System.IO.Path.Combine(AppPaths.AppDataDirectory, "todos.json");
 
     private readonly ObservableCollection<TodoItem> _allItems = new();
     public ObservableCollection<TodoItem> VisibleItems { get; } = new();
@@ -162,6 +156,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             _opacityPercent = next;
             Opacity = _opacityPercent / 100d;
             OnPropertyChanged();
+            if (IsLoaded)
+                WindowStateManager.SavePosition(this);
         }
     }
 
@@ -349,17 +345,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("DockToTopRight.Done");
     }
 
-    public void ResizeHeight(double height)
-    {
-        Height = Math.Clamp(height, MinHeight, 920);
-        PersistWindowPlacement("ResizeHeight");
-    }
-
-    public void SetWindowOpacity(double opacityPercent)
-    {
-        OpacityPercent = opacityPercent;
-    }
-
     public void PersistWindowPlacement(string reason)
     {
         var saved = WindowStateManager.SavePosition(this);
@@ -491,40 +476,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void PendingTab_Click(object sender, RoutedEventArgs e)
     {
-        ClearPendingDelete();
-        _viewMode = ViewMode.Pending;
-        RefreshVisibleItems();
+        SwitchView(ViewMode.Pending);
         LogWindowEvent("PendingTab_Click");
     }
 
     private void CompletedTab_Click(object sender, RoutedEventArgs e)
     {
-        ClearPendingDelete();
-        _viewMode = ViewMode.Completed;
-        RefreshVisibleItems();
+        SwitchView(ViewMode.Completed);
         LogWindowEvent("CompletedTab_Click");
     }
 
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {
-        ClearPendingDelete();
-        var text = DraftText.Trim();
-        if (string.IsNullOrWhiteSpace(text))
+        if (!TryAddTodo(DraftText, out _))
         {
             LogWindowEvent("AddButton_Click.SkipEmpty");
             return;
         }
-
-        _allItems.Insert(0, new TodoItem
-        {
-            Id = Guid.NewGuid().ToString("N"),
-            Text = text,
-            NoteDate = DateTime.Today,
-            CreatedAt = DateTime.Now
-        });
-        DraftText = string.Empty;
-        SaveTodos();
-        RefreshVisibleItems();
         LogWindowEvent("AddButton_Click.Done");
     }
 
@@ -537,17 +505,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
-        if (item.CompletedAt is null)
-        {
-            item.CompletedAt = DateTime.Now;
-            item.Pinned = false;
-        }
-        else
-        {
-            item.CompletedAt = null;
-        }
-        SaveTodos();
-        RefreshVisibleItems();
+        ToggleDone(item);
         LogWindowEvent("ToggleDoneButton_Click.Done", $"ItemId={item.Id},CompletedAt={(item.CompletedAt is null ? "null" : item.CompletedAt.Value.ToString("O"))}");
     }
 
@@ -560,9 +518,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
-        item.Pinned = !item.Pinned;
-        SaveTodos();
-        RefreshVisibleItems();
+        TogglePinned(item);
         LogWindowEvent("PinButton_Click.Done", $"ItemId={item.Id},Pinned={item.Pinned}");
     }
 
@@ -622,10 +578,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
-        _allItems.Remove(item);
-        SaveTodos();
-        RefreshVisibleItems();
-        ClearPendingDelete();
+        DeleteTodo(item);
         LogWindowEvent("DeleteConfirmButton_Click.Done", $"ItemId={item.Id}");
     }
 
@@ -654,17 +607,101 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("DraftTextBox_PreviewKeyDown.Submit");
     }
 
-    private void TodayDateButton_Click(object sender, RoutedEventArgs e)
+    private void SwitchView(ViewMode viewMode)
     {
+        ClearPendingDelete();
+        _viewMode = viewMode;
+        RefreshVisibleItems();
     }
 
-    private void ClearDateButton_Click(object sender, RoutedEventArgs e)
+    private bool TryAddTodo(string text, out TodoItem? item)
     {
+        ClearPendingDelete();
+        var normalized = text.Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            item = null;
+            return false;
+        }
+
+        item = new TodoItem
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Text = normalized,
+            CreatedAt = DateTime.Now
+        };
+
+        _allItems.Insert(0, item);
+        DraftText = string.Empty;
+        SaveTodos();
+        RefreshVisibleItems();
+        return true;
     }
 
-    private void CloseDatePopupButton_Click(object sender, RoutedEventArgs e)
+    private void ToggleDone(TodoItem item)
     {
+        ClearPendingDelete();
+        if (item.CompletedAt is null)
+        {
+            item.CompletedAt = DateTime.Now;
+            item.Pinned = false;
+        }
+        else
+        {
+            item.CompletedAt = null;
+        }
+
+        SaveTodos();
+        RefreshVisibleItems();
     }
+
+    private void TogglePinned(TodoItem item)
+    {
+        ClearPendingDelete();
+        item.Pinned = !item.Pinned;
+        SaveTodos();
+        RefreshVisibleItems();
+    }
+
+    private void DeleteTodo(TodoItem item)
+    {
+        _allItems.Remove(item);
+        SaveTodos();
+        RefreshVisibleItems();
+        ClearPendingDelete();
+    }
+
+    internal TodoItem AddTodoForAutomation(string text)
+    {
+        if (!TryAddTodo(text, out var item) || item is null)
+            throw new InvalidOperationException("Unable to add todo item.");
+
+        return item;
+    }
+
+    internal void SetViewModeForAutomation(ViewMode viewMode) => SwitchView(viewMode);
+
+    internal void ToggleDoneForAutomation(TodoItem item) => ToggleDone(item);
+
+    internal void TogglePinnedForAutomation(TodoItem item) => TogglePinned(item);
+
+    internal void MarkPendingDeleteForAutomation(TodoItem item)
+    {
+        ClearPendingDelete();
+        _pendingDeleteItem = item;
+        DeleteHoldTimer_Tick(this, EventArgs.Empty);
+    }
+
+    internal void CancelPendingDeleteForAutomation() => ClearPendingDelete();
+
+    internal void DeleteTodoForAutomation(TodoItem item) => DeleteTodo(item);
+
+    internal IReadOnlyList<TodoItem> SnapshotItemsForAutomation() => _allItems.ToList();
+
+    internal TodoItem? FindTodoForAutomation(string id) => _allItems.FirstOrDefault(item => item.Id == id);
+
+    internal bool TriggerHotkeyForAutomation()
+        => _hwnd != IntPtr.Zero && PostMessage(_hwnd, WM_HOTKEY, new IntPtr(HOTKEY_SHOW), IntPtr.Zero);
 
     private void ResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {

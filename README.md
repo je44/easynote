@@ -18,6 +18,7 @@
 - `Ctrl + Alt + N` 全局快捷键显示 / 隐藏窗口
 - 自动保存待办数据
 - 自动记住窗口位置、尺寸与透明度
+- 不依赖 WebView2，目标机器无需额外安装浏览器运行时
 
 ## 最近修复更新
 
@@ -34,7 +35,26 @@ dotnet restore .\easy-note-wpf.sln
 dotnet run --project .\EasyNote\EasyNote.csproj
 ```
 
-### 生成 Windows 安装包
+### 运行内建自测
+
+```powershell
+dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test
+```
+
+可选地输出到指定文件：
+
+```powershell
+dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test --self-test-output=.\.omx\self-test-report.json
+```
+
+自测会覆盖并恢复运行期数据文件，用于验证以下功能链路：
+
+- 启动与托盘初始化
+- 新增、置顶、完成、恢复、删除待办
+- 托盘显示、快捷键显示/隐藏、右上角停靠
+- 自动保存、自启动切换、窗口位置/尺寸/透明度持久化
+
+### 生成 Windows 安装包和免安装便携版
 
 ```powershell
 .\build-windows-installer.ps1
@@ -43,7 +63,27 @@ dotnet run --project .\EasyNote\EasyNote.csproj
 默认产物：
 
 - 发布目录：`publish\app`
+- 便携版目录：`publish\portable`
+- 便携版压缩包：`publish\EasyNote-portable-win-x64.zip`
 - 安装包：`installer\EasyNoteSetup.exe`
+
+### 只生成免安装便携版
+
+```powershell
+.\build-windows-installer.ps1 -SkipInstaller
+```
+
+便携版使用方式：
+
+- 解压 `publish\EasyNote-portable-win-x64.zip`
+- 直接运行其中的 `EasyNote.exe`
+- 便携版会把待办数据、窗口状态和日志保存到程序目录下的 `data\` 文件夹
+- 目标机器不需要预装 WebView2 Runtime
+
+数据目录说明：
+
+- 普通运行：`%AppData%\easy-note`
+- 便携版运行：程序目录下的 `data\`
 
 当前安装包行为：
 
@@ -55,7 +95,6 @@ dotnet run --project .\EasyNote\EasyNote.csproj
 ## 项目结构
 
 - `EasyNote/`：WPF 主程序源码
-- `EasyNote/wwwroot/`：前端静态资源
 - `easy-note-wpf.sln`：解决方案入口
 - `build-windows-installer.ps1`：发布与安装包构建脚本
 - `installer.iss`：Inno Setup 安装器配置
@@ -64,5 +103,4 @@ dotnet run --project .\EasyNote\EasyNote.csproj
 
 - 桌面端：WPF
 - 运行时：.NET 10
-- Web 容器：WebView2
 - 托盘能力：Hardcodet.NotifyIcon.Wpf

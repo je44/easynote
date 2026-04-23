@@ -8,7 +8,6 @@ public class TodoItem : INotifyPropertyChanged
 {
     private string _id = string.Empty;
     private string _text = string.Empty;
-    private DateTime _noteDate;
     private bool _pinned;
     private DateTime _createdAt;
     private DateTime? _completedAt;
@@ -26,12 +25,6 @@ public class TodoItem : INotifyPropertyChanged
     {
         get => _text;
         set => SetField(ref _text, value);
-    }
-
-    public DateTime NoteDate
-    {
-        get => _noteDate;
-        set => SetField(ref _noteDate, value);
     }
 
     public bool Pinned

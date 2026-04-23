@@ -7,7 +7,9 @@ param(
 
     [string]$PublishDir,
 
-    [switch]$UseReleaseMetadata
+    [switch]$UseReleaseMetadata,
+
+    [switch]$SkipInstaller
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,6 +25,8 @@ $publishDir = if ($useExistingPublishDir) {
 } else {
     Join-Path $root (Join-Path "publish" $publishFolder)
 }
+$portableDir = Join-Path $root (Join-Path "publish" "portable")
+$portableZipPath = Join-Path $root (Join-Path "publish" "EasyNote-portable-win-x64.zip")
 $installerScript = Join-Path $root "installer.iss"
 
 if (-not $PSBoundParameters.ContainsKey("Version")) {
@@ -64,38 +68,73 @@ if ($useExistingPublishDir) {
         -o $publishDir
 }
 
-$iscc = Get-Command ISCC -ErrorAction SilentlyContinue
-if (-not $iscc) {
-    $iscc = Get-Command iscc.exe -ErrorAction SilentlyContinue
-}
-if (-not $iscc) {
-    $candidatePackagers = @(
-        $env:ISCC_EXE,
-        (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
-        (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
-    ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+if (Test-Path $portableDir) {
+    $resolvedPortableDir = (Resolve-Path $portableDir).Path
+    $resolvedRoot = (Resolve-Path $root).Path
 
-    foreach ($candidate in $candidatePackagers) {
-        if (Test-Path $candidate) {
-            $iscc = @{ Source = (Resolve-Path $candidate).Path }
-            break
+    if (-not $resolvedPortableDir.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing to delete portable directory outside workspace root: $resolvedPortableDir"
+    }
+
+    Remove-Item -LiteralPath $resolvedPortableDir -Recurse -Force
+}
+
+New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+Copy-Item -Path (Join-Path $publishDir "*") -Destination $portableDir -Recurse -Force
+New-Item -ItemType Directory -Path (Join-Path $portableDir "data") -Force | Out-Null
+New-Item -ItemType File -Path (Join-Path $portableDir "portable.marker") -Force | Out-Null
+
+if (Test-Path $portableZipPath) {
+    Remove-Item -LiteralPath $portableZipPath -Force
+}
+
+Compress-Archive -Path (Join-Path $portableDir "*") -DestinationPath $portableZipPath -CompressionLevel Optimal
+
+$shouldBuildInstaller = -not $SkipInstaller.IsPresent
+
+if ($shouldBuildInstaller) {
+    $iscc = Get-Command ISCC -ErrorAction SilentlyContinue
+    if (-not $iscc) {
+        $iscc = Get-Command iscc.exe -ErrorAction SilentlyContinue
+    }
+    if (-not $iscc) {
+        $candidatePackagers = @(
+            $env:ISCC_EXE,
+            (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+            (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+        ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+
+        foreach ($candidate in $candidatePackagers) {
+            if (Test-Path $candidate) {
+                $iscc = @{ Source = (Resolve-Path $candidate).Path }
+                break
+            }
         }
     }
-}
 
-if (-not $iscc) {
+    if (-not $iscc) {
+        Write-Host ""
+        Write-Host "$Configuration publish completed."
+        Write-Host "Portable package created successfully."
+        Write-Host "Packaging tool not found, so installer EXE packaging was skipped."
+        Write-Host "Publish folder:  $publishDir"
+        Write-Host "Portable dir:   $portableDir"
+        Write-Host "Portable zip:   $portableZipPath"
+        exit 0
+    }
+
     Write-Host ""
-    Write-Host "$Configuration publish completed."
-    Write-Host "Packaging tool not found, so EXE packaging was skipped."
-    Write-Host "Expected publish folder: $publishDir"
-    exit 0
+    Write-Host "Building EXE package..."
+    & $iscc.Source "/DPublishDir=$publishDir" "/DMyAppVersion=$Version" "/DOutputBaseFilename=$OutputBaseFilename" $installerScript
 }
-
-Write-Host ""
-Write-Host "Building EXE package..."
-& $iscc.Source "/DPublishDir=$publishDir" "/DMyAppVersion=$Version" "/DOutputBaseFilename=$OutputBaseFilename" $installerScript
 
 Write-Host ""
 Write-Host "Done."
-Write-Host "Publish:   $publishDir"
-Write-Host "Package:   $(Join-Path $root 'installer')"
+Write-Host "Publish:        $publishDir"
+Write-Host "Portable dir:   $portableDir"
+Write-Host "Portable zip:   $portableZipPath"
+if ($shouldBuildInstaller) {
+    Write-Host "Installer dir:  $(Join-Path $root 'installer')"
+} else {
+    Write-Host "Installer dir:  skipped"
+}

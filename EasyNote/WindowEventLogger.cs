@@ -6,9 +6,7 @@ namespace EasyNote;
 internal static class WindowEventLogger
 {
     private static readonly object SyncRoot = new();
-    private static readonly string LogDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "easy-note");
+    private static readonly string LogDirectory = AppPaths.AppDataDirectory;
     private static readonly string LogPath = Path.Combine(LogDirectory, "window-events.log");
     private static readonly string ArchivePath = Path.Combine(LogDirectory, "window-events.previous.log");
     private const long MaxLogBytes = 2 * 1024 * 1024;
