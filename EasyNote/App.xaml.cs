@@ -182,6 +182,33 @@ public partial class App : System.Windows.Application
                 Details = $"savedToDisk={(await System.IO.File.ReadAllTextAsync(todosPath)).Contains(added.Id, StringComparison.Ordinal)}"
             });
 
+            _mainWindow.BeginEditForAutomation(added);
+            report.Checks.Add(new SelfTestCheck
+            {
+                Name = "edit-state-visible",
+                Passed = _mainWindow.FindTodoForAutomation(added.Id)?.IsEditing == true,
+                Details = $"isEditing={_mainWindow.FindTodoForAutomation(added.Id)?.IsEditing}"
+            });
+
+            var editSaved = _mainWindow.CommitEditForAutomation(added, "self-test edited item");
+            report.Checks.Add(new SelfTestCheck
+            {
+                Name = "edit-todo",
+                Passed = editSaved && _mainWindow.FindTodoForAutomation(added.Id)?.Text == "self-test edited item",
+                Details = $"editSaved={editSaved}, text={_mainWindow.FindTodoForAutomation(added.Id)?.Text}"
+            });
+
+            _mainWindow.BeginEditForAutomation(added);
+            _mainWindow.FindTodoForAutomation(added.Id)!.EditingText = "self-test canceled edit";
+            _mainWindow.CancelEditForAutomation(added);
+            report.Checks.Add(new SelfTestCheck
+            {
+                Name = "cancel-edit",
+                Passed = _mainWindow.FindTodoForAutomation(added.Id)?.IsEditing == false
+                    && _mainWindow.FindTodoForAutomation(added.Id)?.Text == "self-test edited item",
+                Details = $"isEditing={_mainWindow.FindTodoForAutomation(added.Id)?.IsEditing}, text={_mainWindow.FindTodoForAutomation(added.Id)?.Text}"
+            });
+
             _mainWindow.TogglePinnedForAutomation(added);
             report.Checks.Add(new SelfTestCheck
             {
@@ -279,11 +306,12 @@ public partial class App : System.Windows.Application
             var originalTop = _mainWindow.Top;
             _mainWindow.DockToTopRight();
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            var dockedNearTopMargin = Math.Abs(_mainWindow.Top - 20) < 2;
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "dock-top-right",
-                Passed = _mainWindow.Top <= originalTop,
-                Details = $"topBefore={originalTop:0.##}, topAfter={_mainWindow.Top:0.##}, leftAfter={_mainWindow.Left:0.##}"
+                Passed = _mainWindow.Top <= originalTop || dockedNearTopMargin,
+                Details = $"topBefore={originalTop:0.##}, topAfter={_mainWindow.Top:0.##}, nearTopMargin={dockedNearTopMargin}, leftAfter={_mainWindow.Left:0.##}"
             });
 
             var trayDockTopBefore = _mainWindow.Top;

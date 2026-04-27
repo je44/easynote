@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -14,6 +15,9 @@ namespace EasyNote;
 
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
+    private const double MinimumWindowHeight = 552;
+    private const double TopRightDockMargin = 20;
+
     #region Win32
 
     [DllImport("user32.dll")] private static extern IntPtr FindWindow(string cls, string? win);
@@ -27,6 +31,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     [DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr hwnd, int id, uint mod, uint key);
     [DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr hwnd, int id);
     [DllImport("user32.dll")] private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern uint GetDoubleClickTime();
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hmon, ref MonitorInfo info);
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
@@ -95,15 +100,28 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ObservableCollection<TodoItem> VisibleItems { get; } = new();
 
     private readonly DispatcherTimer _deleteHoldTimer;
+    private readonly DispatcherTimer _actionToggleTimer;
     private TodoItem? _pendingDeleteItem;
+    private TodoItem? _pressedTodoItem;
+    private TodoItem? _pendingActionToggleItem;
+    private TodoItem? _editingTodoItem;
+    private bool _deleteHoldTriggered;
+    private bool _isResizeDragging;
+    private bool _isTopResizeDragging;
+    private Point _resizeDragStartScreen;
+    private double _resizeDragStartHeight;
+    private double _resizeDragStartTop;
 
     private IntPtr _hwnd;
     private int _originalExStyle;
     private bool _hiddenByUser;
     private bool _pendingDesktopReenterAfterResize;
     private bool _isSettingsOpen;
+    private bool _isNightTheme;
+    private bool _isDraftOpen;
     private double _opacityPercent = 75;
     private string _draftText = string.Empty;
+    private string _addDraftBuffer = string.Empty;
     private ViewMode _viewMode = ViewMode.Pending;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -111,6 +129,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public MainWindow()
     {
         InitializeComponent();
+#if DEBUG
+        MinHeight = MinimumWindowHeight;
+#endif
         DataContext = this;
         Loaded += OnLoaded;
         StateChanged += (_, _) =>
@@ -132,6 +153,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         _deleteHoldTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(520) };
         _deleteHoldTimer.Tick += DeleteHoldTimer_Tick;
+        _actionToggleTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(GetDoubleClickTime() + 20) };
+        _actionToggleTimer.Tick += ActionToggleTimer_Tick;
+        ApplyThemePalette();
         LogWindowEvent("Ctor");
     }
 
@@ -143,6 +167,19 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             if (_isSettingsOpen == value) return;
             _isSettingsOpen = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(IsSettingsPanelActiveInCurrentView));
+        }
+    }
+
+    public bool IsDraftOpen
+    {
+        get => _isDraftOpen;
+        set
+        {
+            if (_isDraftOpen == value) return;
+            _isDraftOpen = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsDraftPanelActiveInCurrentView));
         }
     }
 
@@ -161,6 +198,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
+    public bool IsNightTheme
+    {
+        get => _isNightTheme;
+        set
+        {
+            if (_isNightTheme == value) return;
+            _isNightTheme = value;
+            ApplyThemePalette();
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ThemeToggleText));
+            if (IsLoaded)
+                WindowStateManager.SavePosition(this);
+        }
+    }
+
+    public string ThemeToggleText => IsNightTheme ? "切换到日间护眼" : "切换到夜间护眼";
+
     public string DraftText
     {
         get => _draftText;
@@ -168,26 +222,137 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             if (_draftText == value) return;
             _draftText = value;
+            if (!IsDraftEditMode)
+            {
+                _addDraftBuffer = value;
+            }
             OnPropertyChanged();
+            OnPropertyChanged(nameof(HasDraftText));
         }
     }
 
     public bool IsPendingView => _viewMode == ViewMode.Pending;
+    public bool IsDraftPanelActiveInCurrentView => IsPendingView && IsDraftOpen;
+    public bool IsSettingsPanelActiveInCurrentView => IsPendingView && IsSettingsOpen;
+    public bool HasDraftText => !string.IsNullOrWhiteSpace(DraftText);
+    public bool IsDraftEditMode => _editingTodoItem is not null;
+    public string DraftPrimaryActionText => IsDraftEditMode ? "提交" : "记下";
+    public string DraftPanelStatusText => IsDraftEditMode ? "编辑中" : "新增待办";
     public string PendingTabTag => IsPendingView ? "Active" : string.Empty;
     public string CompletedTabTag => !IsPendingView ? "Active" : string.Empty;
     public string DeleteOverlayText => IsPendingView ? "删除这条待办？" : "删除这条已办？";
     public bool HasVisibleItems => VisibleItems.Count > 0;
     public string EmptyStateText => IsPendingView ? "还没有待办" : "还没有已办记录";
 
+    private void ApplyThemePalette()
+    {
+        if (IsNightTheme)
+        {
+            SetBrush("ChromeBackgroundBrush", "#242A22");
+            SetBrush("ChromeBorderBrush", "#33465240");
+            SetBrush("SurfaceBrush", "#30382D");
+            SetBrush("CardSelectedSurfaceBrush", "#283022");
+            SetBrush("PinnedHoverOverlayBrush", "#6A5D28");
+            SetBrush("SurfaceStrongBrush", "#3A4435");
+            SetBrush("EditSurfaceBrush", "#57664A");
+            SetBrush("EditStatusBrush", "#D8C46C");
+            SetBrush("SecondaryActionBrush", "#3A4435");
+            SetBrush("SecondaryActionHoverBrush", "#46523F");
+            SetBrush("SecondaryActionPressedBrush", "#20261F");
+            SetBrush("SurfaceHoverBrush", "#46523F");
+            SetBrush("SurfacePressedBrush", "#20261F");
+            SetBrush("TextPrimaryBrush", "#EEF1E5");
+            SetBrush("TextMutedBrush", "#BBC5AD");
+            SetBrush("TextSubtleBrush", "#8D9980");
+            SetBrush("NoteTextBrush", "#EEF1E5");
+            SetBrush("NoteTextSubtleBrush", "#AEB89F");
+            SetBrush("AccentBrush", "#D8C46C");
+            SetBrush("AccentHoverBrush", "#E3D17D");
+            SetBrush("AccentPressedBrush", "#BCA84F");
+            SetBrush("HeaderIconHoverBrush", "#F0D76E");
+            SetBrush("HeaderIconPressedBrush", "#FFE58A");
+            SetBrush("PinnedIconBrush", "#F0D76E");
+            SetBrush("PinnedSurfaceBrush", "#4A4325");
+            SetBrush("PinnedBorderBrush", "#A9923E");
+            SetBrush("DangerBrush", "#E28B7F");
+            SetBrush("DoneCornerBrush", "#D7473F");
+            SetBrush("OverlayBrush", "#F23F3328");
+            SetBrush("ScrollTrackBrush", "#3346503E");
+            SetBrush("ScrollThumbBrush", "#8895A083");
+            return;
+        }
+
+        SetBrush("ChromeBackgroundBrush", "#ECE4D5");
+        SetBrush("ChromeBorderBrush", "#40D8CEB8");
+        SetBrush("SurfaceBrush", "#DED5C3");
+        SetBrush("CardSelectedSurfaceBrush", "#D3CAB8");
+        SetBrush("PinnedHoverOverlayBrush", "#E1CB7D");
+        SetBrush("SurfaceStrongBrush", "#F4ECDC");
+        SetBrush("EditSurfaceBrush", "#DEC985");
+        SetBrush("EditStatusBrush", "#5F7D5C");
+        SetBrush("SecondaryActionBrush", "#F4ECDC");
+        SetBrush("SecondaryActionHoverBrush", "#E8DEC9");
+        SetBrush("SecondaryActionPressedBrush", "#D7CCB7");
+        SetBrush("SurfaceHoverBrush", "#E8DEC9");
+        SetBrush("SurfacePressedBrush", "#D7CCB7");
+        SetBrush("TextPrimaryBrush", "#2F291E");
+        SetBrush("TextMutedBrush", "#756B5C");
+        SetBrush("TextSubtleBrush", "#928674");
+        SetBrush("NoteTextBrush", "#2F291E");
+        SetBrush("NoteTextSubtleBrush", "#756B5C");
+        SetBrush("AccentBrush", "#668564");
+        SetBrush("AccentHoverBrush", "#73916E");
+        SetBrush("AccentPressedBrush", "#557252");
+        SetBrush("HeaderIconHoverBrush", "#557252");
+        SetBrush("HeaderIconPressedBrush", "#3F5D3E");
+        SetBrush("PinnedIconBrush", "#536E50");
+        SetBrush("PinnedSurfaceBrush", "#E9D89D");
+        SetBrush("PinnedBorderBrush", "#B59B3E");
+        SetBrush("DangerBrush", "#B45C50");
+        SetBrush("DoneCornerBrush", "#C9342E");
+        SetBrush("OverlayBrush", "#F4E0CFC2");
+        SetBrush("ScrollTrackBrush", "#2A2F291E");
+        SetBrush("ScrollThumbBrush", "#7A756B5C");
+    }
+
+    private void SetBrush(string key, string color)
+    {
+        Resources[key] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
+    }
+
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        WindowStateManager.RestorePosition(this);
+        if (!WindowStateManager.RestorePosition(this))
+        {
+            ApplyDefaultWindowHeight();
+            ApplyTopRightPlacement();
+        }
+
         LoadTodos();
         ShowInTaskbar = true;
         ShowInTaskbar = false;
         LogWindowEvent("OnLoaded.BeforeEnterDesktopMode");
         EnterDesktopMode();
         LogWindowEvent("OnLoaded.AfterEnterDesktopMode");
+    }
+
+    private void ApplyDefaultWindowHeight()
+    {
+        var workArea = SystemParameters.WorkArea;
+#if DEBUG
+        var targetHeight = Math.Clamp(820d, MinHeight, MaxHeight);
+#else
+        var targetHeight = Math.Clamp(workArea.Height * 0.85, MinHeight, MaxHeight);
+#endif
+        var maxTop = Math.Max(workArea.Top, workArea.Bottom - targetHeight);
+
+        Height = targetHeight;
+        Top = Math.Clamp(Top, workArea.Top, maxTop);
+    }
+
+    private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        IsNightTheme = !IsNightTheme;
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -325,12 +490,22 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         LogWindowEvent("DockToTopRight.Start");
         EnsureInteractiveMode();
+        if (!ApplyTopRightPlacement())
+            return;
+
+        PersistWindowPlacement("DockToTopRight");
+        ReenterDesktopModeSoon();
+        LogWindowEvent("DockToTopRight.Done");
+    }
+
+    private bool ApplyTopRightPlacement()
+    {
         var hmon = MonitorFromWindow(_hwnd, 2);
         var info = MonitorInfo.Create();
         if (!GetMonitorInfo(hmon, ref info))
         {
-            LogWindowEvent("DockToTopRight.NoMonitorInfo");
-            return;
+            LogWindowEvent("ApplyTopRightPlacement.NoMonitorInfo");
+            return false;
         }
 
         var dpi = VisualTreeHelper.GetDpi(this);
@@ -338,11 +513,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var scaleY = dpi.DpiScaleY;
         var waRight = info.WorkArea.Right / scaleX;
         var waTop = info.WorkArea.Top / scaleY;
-        Left = waRight - Width - 20;
-        Top = waTop + 20;
-        PersistWindowPlacement("DockToTopRight");
-        ReenterDesktopModeSoon();
-        LogWindowEvent("DockToTopRight.Done");
+        Left = waRight - Width - TopRightDockMargin;
+        Top = waTop + TopRightDockMargin;
+        return true;
     }
 
     public void PersistWindowPlacement(string reason)
@@ -403,16 +576,117 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private void ClearPendingDelete()
+    private void ClearPendingDelete(bool currentViewOnly = true)
     {
-        foreach (var item in _allItems.Where(item => item.PendingDelete))
+        CancelPendingActionToggle();
+
+        var items = _allItems.Where(item => item.PendingDelete);
+        if (currentViewOnly)
+        {
+            items = items.Where(CanToggleDoneFromCurrentView);
+        }
+
+        foreach (var item in items)
         {
             item.PendingDelete = false;
         }
 
-        _pendingDeleteItem = null;
+        if (_pendingDeleteItem is null || !currentViewOnly || CanToggleDoneFromCurrentView(_pendingDeleteItem))
+        {
+            _pendingDeleteItem = null;
+        }
+
         _deleteHoldTimer.Stop();
     }
+
+    private void ClearTodoActions(TodoItem? except = null, bool currentViewOnly = true)
+    {
+        var items = _allItems.Where(item => item != except && (item.ActionOpen || item.Completing));
+        if (currentViewOnly)
+        {
+            items = items.Where(CanToggleDoneFromCurrentView);
+        }
+
+        foreach (var item in items)
+        {
+            item.ActionOpen = false;
+            item.Completing = false;
+            item.SuppressActionOpenAnimation = false;
+        }
+    }
+
+    private void ClearTodoEditing(TodoItem? except = null)
+    {
+        foreach (var item in _allItems.Where(item => item != except && item.IsEditing))
+        {
+            item.EditingText = item.Text;
+            item.IsEditing = false;
+            if (item == _editingTodoItem)
+            {
+                _editingTodoItem = null;
+            }
+        }
+
+        NotifyDraftPanelStateChanged();
+    }
+
+    private void CancelPendingActionToggle()
+    {
+        _actionToggleTimer.Stop();
+        _pendingActionToggleItem = null;
+    }
+
+    private void QueueActionToggle(TodoItem item)
+    {
+        CancelPendingActionToggle();
+        _pendingActionToggleItem = item;
+        _actionToggleTimer.Start();
+    }
+
+    private void ActionToggleTimer_Tick(object? sender, EventArgs e)
+    {
+        _actionToggleTimer.Stop();
+
+        if (_pendingActionToggleItem is not { } item || item.PendingDelete || item.IsEditing)
+        {
+            _pendingActionToggleItem = null;
+            return;
+        }
+
+        if (CanToggleDoneFromCurrentView(item))
+        {
+            if (item.ActionOpen)
+            {
+                item.ActionOpen = false;
+                item.SuppressActionOpenAnimation = false;
+            }
+            else
+            {
+                item.SuppressActionOpenAnimation = false;
+                ClearTodoActions(item);
+                item.ActionOpen = true;
+            }
+
+            LogWindowEvent("TodoItem_Click.ActionToggle", $"ItemId={item.Id},ActionOpen={item.ActionOpen}");
+        }
+        else
+        {
+            ClearTodoActions();
+        }
+
+        _pendingActionToggleItem = null;
+    }
+
+    private void NotifyDraftPanelStateChanged()
+    {
+        OnPropertyChanged(nameof(IsDraftEditMode));
+        OnPropertyChanged(nameof(DraftPrimaryActionText));
+        OnPropertyChanged(nameof(DraftPanelStatusText));
+        OnPropertyChanged(nameof(HasDraftText));
+    }
+
+    private bool CanToggleDoneFromCurrentView(TodoItem item)
+        => IsPendingView ? item.CompletedAt is null : item.CompletedAt is not null;
 
     private void RefreshVisibleItems()
     {
@@ -437,6 +711,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         OnPropertyChanged(nameof(HasVisibleItems));
         OnPropertyChanged(nameof(EmptyStateText));
         OnPropertyChanged(nameof(IsPendingView));
+        OnPropertyChanged(nameof(IsDraftPanelActiveInCurrentView));
+        OnPropertyChanged(nameof(IsSettingsPanelActiveInCurrentView));
         OnPropertyChanged(nameof(PendingTabTag));
         OnPropertyChanged(nameof(CompletedTabTag));
         OnPropertyChanged(nameof(DeleteOverlayText));
@@ -460,11 +736,97 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("Header_MouseLeftButtonDown.Handled");
     }
 
+    private void Chrome_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed || e.Handled)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is DependencyObject source && IsInteractiveChromeSource(source))
+        {
+            return;
+        }
+
+        BeginDrag();
+        e.Handled = true;
+        LogWindowEvent("Chrome_MouseLeftButtonDown.Handled");
+    }
+
+    private void TopResizeGrip_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_isTopResizeDragging || e.LeftButton != MouseButtonState.Pressed)
+        {
+            return;
+        }
+
+        var currentScreen = PointToScreen(e.GetPosition(this));
+        var deltaY = currentScreen.Y - _resizeDragStartScreen.Y;
+        var nextHeight = Math.Clamp(_resizeDragStartHeight - deltaY, MinHeight, MaxHeight);
+        var bottom = _resizeDragStartTop + _resizeDragStartHeight;
+
+        Height = nextHeight;
+        Top = bottom - nextHeight;
+    }
+
+    private void TopResizeGrip_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (!_isTopResizeDragging)
+        {
+            return;
+        }
+
+        EndResizeGripDrag("TopResizeGrip_MouseLeftButtonUp");
+        e.Handled = true;
+    }
+
+    private void TopResizeGrip_LostMouseCapture(object sender, MouseEventArgs e)
+        => EndResizeGripDrag("TopResizeGrip_LostMouseCapture");
+
+    private static bool IsInteractiveChromeSource(DependencyObject source)
+        => FindParent<Button>(source) is not null
+            || FindParent<TextBox>(source) is not null
+            || FindParent<Slider>(source) is not null
+            || FindParent<ScrollBar>(source) is not null
+            || FindParent<ListBoxItem>(source) is not null;
+
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
         ClearPendingDelete();
         IsSettingsOpen = !IsSettingsOpen;
+        if (IsSettingsOpen)
+        {
+            CloseDraftPanel();
+        }
         LogWindowEvent("SettingsButton_Click", $"IsSettingsOpen={IsSettingsOpen}");
+    }
+
+    private void AddTodoToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        ClearPendingDelete();
+        ClearTodoActions();
+
+        if (IsDraftEditMode)
+        {
+            CancelTodoEdit(_editingTodoItem);
+        }
+
+        IsDraftOpen = !IsDraftOpen;
+        if (IsDraftOpen)
+        {
+            IsSettingsOpen = false;
+            DraftText = _addDraftBuffer;
+            FocusDraftInput(selectAll: string.IsNullOrWhiteSpace(DraftText) is false);
+        }
+        LogWindowEvent("AddTodoToggleButton_Click", $"IsDraftOpen={IsDraftOpen}");
+    }
+
+    private void DraftInputTextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        ClearPendingDelete();
+        ClearTodoActions();
+        ClearTodoEditing(_editingTodoItem);
+        LogWindowEvent("DraftInputTextBox_GotKeyboardFocus");
     }
 
     private void SettingsCloseButton_Click(object sender, RoutedEventArgs e)
@@ -488,21 +850,47 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {
+        if (IsDraftEditMode)
+        {
+            if (_editingTodoItem is null || !CommitTodoEdit(_editingTodoItem))
+            {
+                LogWindowEvent("AddButton_Click.SkipEditEmpty");
+                return;
+            }
+
+            LogWindowEvent("AddButton_Click.EditDone");
+            return;
+        }
+
         if (!TryAddTodo(DraftText, out _))
         {
             LogWindowEvent("AddButton_Click.SkipEmpty");
             return;
         }
+
+        _addDraftBuffer = string.Empty;
+        DraftText = string.Empty;
+        IsDraftOpen = false;
+        NotifyDraftPanelStateChanged();
         LogWindowEvent("AddButton_Click.Done");
     }
 
-    private void ToggleDoneButton_Click(object sender, RoutedEventArgs e)
+    private async void ToggleDoneButton_Click(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         ClearPendingDelete();
         if (sender is not FrameworkElement { Tag: TodoItem item })
         {
             LogWindowEvent("ToggleDoneButton_Click.InvalidTag");
             return;
+        }
+
+        if (CanToggleDoneFromCurrentView(item))
+        {
+            item.ActionOpen = true;
+            item.Completing = true;
+            LogWindowEvent("ToggleDoneButton_Click.Animate", $"ItemId={item.Id}");
+            await Task.Delay(230);
         }
 
         ToggleDone(item);
@@ -524,7 +912,26 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void TodoItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        CancelPendingActionToggle();
+
+        if (IsDraftPanelActiveInCurrentView)
+        {
+            ClearPendingDelete();
+            ClearTodoActions();
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            _deleteHoldTimer.Stop();
+            LogWindowEvent("TodoItem_MouseLeftButtonDown.SkipDraftOpen");
+            return;
+        }
+
         if (e.OriginalSource is DependencyObject source && FindParent<Button>(source) is not null)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is DependencyObject textSource && FindParent<TextBox>(textSource) is not null)
         {
             return;
         }
@@ -534,8 +941,55 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
+        if (_allItems.Any(todo => todo.PendingDelete))
+        {
+            ClearPendingDelete();
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            _deleteHoldTimer.Stop();
+            e.Handled = true;
+            LogWindowEvent("TodoItem_MouseLeftButtonDown.ClearPendingDeleteOnly", $"ItemId={item.Id}");
+            return;
+        }
+
+        if (e.ClickCount >= 2)
+        {
+            _deleteHoldTimer.Stop();
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            BeginTodoEdit(item);
+            e.Handled = true;
+            LogWindowEvent("TodoItem_MouseLeftButtonDown.BeginEdit", $"ItemId={item.Id}");
+            return;
+        }
+
+        if (item.IsEditing)
+        {
+            ClearPendingDelete();
+            _pressedTodoItem = item;
+            _pendingDeleteItem = null;
+            _deleteHoldTriggered = false;
+            _deleteHoldTimer.Stop();
+            return;
+        }
+
+        if (item.ActionOpen || item.Completing)
+        {
+            ClearPendingDelete();
+            _pressedTodoItem = item;
+            _pendingDeleteItem = null;
+            _deleteHoldTriggered = false;
+            _deleteHoldTimer.Stop();
+            LogWindowEvent("TodoItem_MouseLeftButtonDown.SkipDeleteHold", $"ItemId={item.Id},ActionOpen={item.ActionOpen},Completing={item.Completing}");
+            return;
+        }
+
         ClearPendingDelete();
         _pendingDeleteItem = item;
+        _pressedTodoItem = item;
+        _deleteHoldTriggered = false;
         _deleteHoldTimer.Stop();
         _deleteHoldTimer.Start();
     }
@@ -543,13 +997,40 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void TodoItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         _deleteHoldTimer.Stop();
+        if (IsDraftPanelActiveInCurrentView)
+        {
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            ClearTodoActions();
+            LogWindowEvent("TodoItem_MouseLeftButtonUp.SkipDraftOpen");
+            return;
+        }
+
+        if (sender is Border { Tag: TodoItem item } && item == _pressedTodoItem && !_deleteHoldTriggered && !item.PendingDelete)
+        {
+            if (!item.IsEditing && CanToggleDoneFromCurrentView(item))
+            {
+                QueueActionToggle(item);
+            }
+            else
+            {
+                ClearTodoActions();
+            }
+        }
+
         _pendingDeleteItem = null;
+        _pressedTodoItem = null;
+        _deleteHoldTriggered = false;
     }
 
     private void TodoItem_MouseLeave(object sender, MouseEventArgs e)
     {
         _deleteHoldTimer.Stop();
+        CancelPendingActionToggle();
         _pendingDeleteItem = null;
+        _pressedTodoItem = null;
+        _deleteHoldTriggered = false;
     }
 
     private void DeleteHoldTimer_Tick(object? sender, EventArgs e)
@@ -561,11 +1042,31 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
-        foreach (var item in _allItems.Where(item => item.PendingDelete))
+        if (_pendingDeleteItem.ActionOpen || _pendingDeleteItem.Completing)
+        {
+            LogWindowEvent("DeleteHoldTimer_Tick.SkipActionOpen", $"ItemId={_pendingDeleteItem.Id},ActionOpen={_pendingDeleteItem.ActionOpen},Completing={_pendingDeleteItem.Completing}");
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            return;
+        }
+
+        if (_pendingDeleteItem.IsEditing)
+        {
+            _pendingDeleteItem = null;
+            _pressedTodoItem = null;
+            _deleteHoldTriggered = false;
+            return;
+        }
+
+        foreach (var item in _allItems.Where(item => item.PendingDelete && CanToggleDoneFromCurrentView(item)))
         {
             item.PendingDelete = false;
         }
 
+        _deleteHoldTriggered = true;
+        _pendingDeleteItem.ActionOpen = false;
+        _pendingDeleteItem.Completing = false;
         _pendingDeleteItem.PendingDelete = true;
         LogWindowEvent("DeleteHoldTimer_Tick.Done", $"ItemId={_pendingDeleteItem.Id}");
     }
@@ -595,8 +1096,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("HideButton_Click");
     }
 
+    private void DraftCancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (IsDraftEditMode)
+        {
+            CancelTodoEdit(_editingTodoItem);
+            return;
+        }
+
+        IsDraftOpen = false;
+        LogWindowEvent("DraftCancelButton_Click.CloseDraft");
+    }
+
     private void DraftTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Escape && IsDraftEditMode)
+        {
+            e.Handled = true;
+            CancelTodoEdit(_editingTodoItem);
+            return;
+        }
+
         if (e.Key != Key.Enter || Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
         {
             return;
@@ -609,14 +1129,120 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void SwitchView(ViewMode viewMode)
     {
-        ClearPendingDelete();
+        CancelPendingActionToggle();
+        foreach (var item in _allItems.Where(item => item.ActionOpen))
+        {
+            item.SuppressActionOpenAnimation = true;
+        }
+
         _viewMode = viewMode;
         RefreshVisibleItems();
+    }
+
+    private void BeginTodoEdit(TodoItem item)
+    {
+        ClearPendingDelete();
+        CancelPendingActionToggle();
+        ClearTodoActions(item);
+        ClearTodoEditing(item);
+        _addDraftBuffer = DraftText;
+
+        if (_editingTodoItem is not null && _editingTodoItem != item)
+        {
+            _editingTodoItem.EditingText = _editingTodoItem.Text;
+            _editingTodoItem.IsEditing = false;
+        }
+
+        _editingTodoItem = item;
+        item.ActionOpen = false;
+        item.Completing = false;
+        item.SuppressActionOpenAnimation = false;
+        item.EditingText = item.Text;
+        item.IsEditing = true;
+        DraftText = item.Text;
+        IsDraftOpen = true;
+        IsSettingsOpen = false;
+        NotifyDraftPanelStateChanged();
+        FocusDraftInput(selectAll: true);
+    }
+
+    private bool CommitTodoEdit(TodoItem item)
+    {
+        var normalized = DraftText.Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            LogWindowEvent("CommitTodoEdit.SkipEmpty", $"ItemId={item.Id}");
+            return false;
+        }
+
+        ClearPendingDelete();
+        CancelPendingActionToggle();
+        item.Text = normalized;
+        item.EditingText = normalized;
+        item.IsEditing = false;
+        _editingTodoItem = null;
+        SaveTodos();
+        RefreshVisibleItems();
+        DraftText = _addDraftBuffer;
+        IsDraftOpen = false;
+        NotifyDraftPanelStateChanged();
+        LogWindowEvent("CommitTodoEdit.Done", $"ItemId={item.Id}");
+        return true;
+    }
+
+    private void CancelTodoEdit(TodoItem? item)
+    {
+        CancelPendingActionToggle();
+        if (item is null)
+        {
+            CloseDraftPanel();
+            return;
+        }
+
+        item.EditingText = item.Text;
+        item.IsEditing = false;
+        _editingTodoItem = null;
+        DraftText = _addDraftBuffer;
+        IsDraftOpen = false;
+        NotifyDraftPanelStateChanged();
+        LogWindowEvent("CancelTodoEdit.Done", $"ItemId={item.Id}");
+    }
+
+    private void CloseDraftPanel()
+    {
+        if (_editingTodoItem is not null)
+        {
+            _editingTodoItem.EditingText = _editingTodoItem.Text;
+            _editingTodoItem.IsEditing = false;
+            _editingTodoItem = null;
+        }
+
+        IsDraftOpen = false;
+        DraftText = _addDraftBuffer;
+        NotifyDraftPanelStateChanged();
+    }
+
+    private void FocusDraftInput(bool selectAll)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            DraftInputTextBox.Focus();
+            Keyboard.Focus(DraftInputTextBox);
+            if (selectAll)
+            {
+                DraftInputTextBox.SelectAll();
+            }
+            else
+            {
+                DraftInputTextBox.CaretIndex = DraftInputTextBox.Text.Length;
+            }
+        }, DispatcherPriority.ApplicationIdle);
     }
 
     private bool TryAddTodo(string text, out TodoItem? item)
     {
         ClearPendingDelete();
+        ClearTodoActions();
         var normalized = text.Trim();
         if (string.IsNullOrWhiteSpace(normalized))
         {
@@ -628,14 +1254,25 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             Id = Guid.NewGuid().ToString("N"),
             Text = normalized,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
+            IsNew = true
         };
 
         _allItems.Insert(0, item);
         DraftText = string.Empty;
         SaveTodos();
         RefreshVisibleItems();
+        ClearNewItemFlagAfterEntrance(item);
         return true;
+    }
+
+    private async void ClearNewItemFlagAfterEntrance(TodoItem item)
+    {
+        await Task.Delay(420);
+        if (_allItems.Contains(item))
+        {
+            item.IsNew = false;
+        }
     }
 
     private void ToggleDone(TodoItem item)
@@ -651,6 +1288,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             item.CompletedAt = null;
         }
 
+        item.ActionOpen = false;
+        item.Completing = false;
+        item.SuppressActionOpenAnimation = false;
         SaveTodos();
         RefreshVisibleItems();
     }
@@ -658,6 +1298,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void TogglePinned(TodoItem item)
     {
         ClearPendingDelete();
+        ClearTodoActions(item);
         item.Pinned = !item.Pinned;
         SaveTodos();
         RefreshVisibleItems();
@@ -685,6 +1326,30 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     internal void TogglePinnedForAutomation(TodoItem item) => TogglePinned(item);
 
+    internal void BeginEditForAutomation(TodoItem item) => BeginTodoEdit(item);
+
+    internal bool CommitEditForAutomation(TodoItem item, string text)
+    {
+        var normalized = text.Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return false;
+        }
+
+        item.Text = normalized;
+        item.EditingText = normalized;
+        item.IsEditing = false;
+        _editingTodoItem = null;
+        DraftText = _addDraftBuffer;
+        IsDraftOpen = false;
+        SaveTodos();
+        RefreshVisibleItems();
+        NotifyDraftPanelStateChanged();
+        return true;
+    }
+
+    internal void CancelEditForAutomation(TodoItem item) => CancelTodoEdit(item);
+
     internal void MarkPendingDeleteForAutomation(TodoItem item)
     {
         ClearPendingDelete();
@@ -708,16 +1373,80 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (e.LeftButton != MouseButtonState.Pressed) return;
         _pendingDesktopReenterAfterResize = true;
         EnsureInteractiveMode();
-        // 发送 WM_NCLBUTTONDOWN + HTBOTTOM，让系统处理底部拖拽 resize
-        const int WM_NCLBUTTONDOWN = 0x00A1;
-        const int HTBOTTOM = 15;
-        SendMessage(_hwnd, WM_NCLBUTTONDOWN, new IntPtr(HTBOTTOM), IntPtr.Zero);
+        _isResizeDragging = true;
+        _isTopResizeDragging = false;
+        _resizeDragStartScreen = PointToScreen(e.GetPosition(this));
+        _resizeDragStartHeight = Height;
+        _resizeDragStartTop = Top;
+        Mouse.Capture(sender as IInputElement);
         e.Handled = true;
         LogWindowEvent("ResizeGrip_MouseLeftButtonDown.Handled");
     }
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern IntPtr SendMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+    private void TopResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+        BeginTopResizeGripDrag(sender, e);
+        e.Handled = true;
+    }
+
+    private void BeginTopResizeGripDrag(object sender, MouseButtonEventArgs e)
+    {
+        _pendingDesktopReenterAfterResize = true;
+        EnsureInteractiveMode();
+        _isResizeDragging = true;
+        _isTopResizeDragging = true;
+        _resizeDragStartScreen = PointToScreen(e.GetPosition(this));
+        _resizeDragStartHeight = Height;
+        _resizeDragStartTop = Top;
+        Mouse.Capture(sender as IInputElement);
+        LogWindowEvent("TopResizeGrip_MouseLeftButtonDown.Handled");
+    }
+
+    private void ResizeGrip_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_isResizeDragging || e.LeftButton != MouseButtonState.Pressed)
+        {
+            return;
+        }
+
+        var currentScreen = PointToScreen(e.GetPosition(this));
+        var deltaY = currentScreen.Y - _resizeDragStartScreen.Y;
+        Height = Math.Clamp(_resizeDragStartHeight + deltaY, MinHeight, MaxHeight);
+    }
+
+    private void ResizeGrip_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        EndResizeGripDrag("ResizeGrip_MouseLeftButtonUp");
+        e.Handled = true;
+    }
+
+    private void ResizeGrip_LostMouseCapture(object sender, MouseEventArgs e)
+        => EndResizeGripDrag("ResizeGrip_LostMouseCapture");
+
+    private void EndResizeGripDrag(string reason)
+    {
+        if (!_isResizeDragging)
+        {
+            return;
+        }
+
+        _isResizeDragging = false;
+        _isTopResizeDragging = false;
+        if (Mouse.Captured is not null)
+        {
+            Mouse.Capture(null);
+        }
+
+        PersistWindowPlacement(reason);
+        if (_pendingDesktopReenterAfterResize)
+        {
+            ReenterDesktopModeSoon();
+            _pendingDesktopReenterAfterResize = false;
+        }
+
+        LogWindowEvent("EndResizeGripDrag", $"Reason={reason}");
+    }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {

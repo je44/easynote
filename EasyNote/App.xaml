@@ -5,8 +5,8 @@
              xmlns:local="clr-namespace:EasyNote"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-        <FontFamily x:Key="AppDisplayFont">pack://application:,,,/Assets/Fonts/#Newsreader, Microsoft YaHei UI</FontFamily>
-        <FontFamily x:Key="AppAccentFont">pack://application:,,,/Assets/Fonts/#Newsreader</FontFamily>
+        <FontFamily x:Key="AppDisplayFont">Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI</FontFamily>
+        <FontFamily x:Key="AppAccentFont">Segoe UI Variable Display, Microsoft YaHei UI, Segoe UI</FontFamily>
         <tb:TaskbarIcon x:Key="TrayIcon"
                         IconSource="/Assets/icon.ico"
                         ToolTipText="easy-note · 数据自动保存在本地">

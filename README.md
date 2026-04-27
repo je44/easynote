@@ -9,7 +9,25 @@ It does not require WebView2.
 
 ## Preview
 
-<img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
+<img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="409" />
+
+## Release Branch Notes
+
+This `release` branch carries the packaged Windows build for EasyNote. The
+`main` branch remains the public baseline for shared development.
+
+Compared with `main`, this branch currently includes:
+
+- a wider personalized WPF interface with a softer beige visual style
+- updated Todo / Done navigation and an empty-state layout matching the preview
+- an inline draft flow for adding todos
+- pinned-item styling and refined item action states
+- day / night eye-care theme switching, saved with the window state
+- best-effort migration of existing AppData todos and window state into portable mode
+- release README preview imagery for the customized interface
+
+Use this branch when you want the packaged Windows app with the personalized
+UI and workflow variant.
 
 ## Features
 
@@ -21,6 +39,15 @@ It does not require WebView2.
 - Auto-save for todos
 - Window position, size, and opacity persistence
 - Optional portable mode with local `data/` storage
+
+## Install
+
+Download the release build for Windows directly from GitHub Releases:
+
+- [Download EasyNote.exe](https://github.com/je44/easynote/releases/download/release-2026-04-26/EasyNote.exe)
+
+After downloading, run `EasyNote.exe` to start the app. This release build is
+published from the `release` branch.
 
 ## Run From Source
 

@@ -9,7 +9,24 @@ WebView2 は不要です。
 
 ## プレビュー
 
-<img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
+<img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="409" />
+
+## Release ブランチについて
+
+この `release` ブランチは EasyNote のダウンロード可能な Windows ビルドです。
+`main` ブランチは、他のユーザーや開発者が使う公開ベースラインとして残しています。
+
+`main` と比べて、このブランチには現在以下の変更が含まれます。
+
+- より広い個人向け WPF UI と、やわらかいベージュ系の見た目
+- プレビューに合わせた Todo / Done ナビゲーションと空状態レイアウト
+- ToDo 追加用のインライン下書き入力
+- ピン留め項目の表示強化と、項目操作状態の調整
+- 日中 / 夜間の目にやさしいテーマ切り替えと、その状態保存
+- ポータブルモードで既存 AppData の ToDo とウィンドウ状態を移行する処理
+- このブランチ専用の README プレビュー画像
+
+共有開発には `main` を使い、配布版の個人向け UI と操作フローを使う場合は `release` を使ってください。
 
 ## 主な機能
 
@@ -21,6 +38,15 @@ WebView2 は不要です。
 - ToDo の自動保存
 - ウィンドウ位置、サイズ、透明度の保存
 - `data\` フォルダを使うポータブルモード
+
+## インストール
+
+release 版の Windows 実行ファイルは GitHub Releases から直接ダウンロードできます。
+
+- release 版: [EasyNote.exe](https://github.com/je44/easynote/releases/download/release-2026-04-26/EasyNote.exe)
+
+`main` ブランチはオープンソースのコードベースとして維持し、EXE ダウンロードは提供しません。
+`main` を使う場合は、下記のソース実行手順に従ってください。
 
 ## ソースから実行
 

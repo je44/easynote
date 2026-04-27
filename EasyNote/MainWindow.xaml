@@ -6,11 +6,11 @@
         xmlns:local="clr-namespace:EasyNote"
         mc:Ignorable="d"
         Title="easy-note"
-        Width="340"
+        Width="408"
         Height="520"
-        MinWidth="280"
-        MinHeight="300"
-        MaxHeight="920"
+        MinWidth="408"
+        MinHeight="360"
+        MaxHeight="1020"
         WindowStyle="None"
         ResizeMode="CanMinimize"
         AllowsTransparency="True"
@@ -22,15 +22,72 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <local:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
+        <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#ECE4D5" />
+        <SolidColorBrush x:Key="ChromeBorderBrush" Color="#40D8CEB8" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#DED5C3" />
+        <SolidColorBrush x:Key="CardSelectedSurfaceBrush" Color="#D3CAB8" />
+        <SolidColorBrush x:Key="PinnedHoverOverlayBrush" Color="#E1CB7D" />
+        <SolidColorBrush x:Key="SurfaceStrongBrush" Color="#F4ECDC" />
+        <SolidColorBrush x:Key="EditSurfaceBrush" Color="#DEC985" />
+        <SolidColorBrush x:Key="EditStatusBrush" Color="#5F7D5C" />
+        <SolidColorBrush x:Key="SecondaryActionBrush" Color="#F4ECDC" />
+        <SolidColorBrush x:Key="SecondaryActionHoverBrush" Color="#E8DEC9" />
+        <SolidColorBrush x:Key="SecondaryActionPressedBrush" Color="#D7CCB7" />
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#E8DEC9" />
+        <SolidColorBrush x:Key="SurfacePressedBrush" Color="#D7CCB7" />
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#2F291E" />
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#756B5C" />
+        <SolidColorBrush x:Key="TextSubtleBrush" Color="#928674" />
+        <SolidColorBrush x:Key="NoteTextBrush" Color="#2F291E" />
+        <SolidColorBrush x:Key="NoteTextSubtleBrush" Color="#756B5C" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#668564" />
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#73916E" />
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#557252" />
+        <SolidColorBrush x:Key="HeaderIconHoverBrush" Color="#557252" />
+        <SolidColorBrush x:Key="HeaderIconPressedBrush" Color="#3F5D3E" />
+        <SolidColorBrush x:Key="PinnedIconBrush" Color="#536E50" />
+        <SolidColorBrush x:Key="PinnedSurfaceBrush" Color="#E9D89D" />
+        <SolidColorBrush x:Key="PinnedBorderBrush" Color="#B59B3E" />
+        <SolidColorBrush x:Key="DangerBrush" Color="#B45C50" />
+        <SolidColorBrush x:Key="DoneCornerBrush" Color="#C9342E" />
+        <SolidColorBrush x:Key="OverlayBrush" Color="#F4E0CFC2" />
+        <SolidColorBrush x:Key="ScrollTrackBrush" Color="#2A2F291E" />
+        <SolidColorBrush x:Key="ScrollThumbBrush" Color="#7A756B5C" />
+
+        <DropShadowEffect x:Key="WindowSoftShadow"
+                          BlurRadius="12"
+                          Color="#12170F"
+                          Direction="270"
+                          Opacity="0.11"
+                          ShadowDepth="1" />
+        <DropShadowEffect x:Key="PanelSoftShadow"
+                          BlurRadius="10"
+                          Color="#12170F"
+                          Direction="270"
+                          Opacity="0.06"
+                          ShadowDepth="1" />
+        <PathGeometry x:Key="IconSettingsGeometry"
+                      Figures="M4 21L4 14 M4 10L4 3 M2 14L6 14 M12 21L12 12 M12 8L12 3 M10 8L14 8 M20 21L20 16 M20 12L20 3 M18 16L22 16" />
+        <PathGeometry x:Key="IconHideGeometry"
+                      Figures="M5 12L19 12" />
+        <PathGeometry x:Key="IconAddGeometry"
+                      Figures="M12 5L12 19 M5 12L19 12" />
+        <PathGeometry x:Key="IconTopGeometry"
+                      Figures="M12 19L12 5 M6 11L12 5L18 11 M5 19L19 19" />
+        <PathGeometry x:Key="IconCheckGeometry"
+                      Figures="M5 12L10 17L20 7" />
+        <PathGeometry x:Key="IconTrashGeometry"
+                      Figures="M3 6L21 6 M8 6L8 4L16 4L16 6 M6 6L7 21L17 21L18 6 M10 10L10 17 M14 10L14 17" />
+        <PathGeometry x:Key="IconXGeometry"
+                      Figures="M7 7L17 17 M17 7L7 17" />
 
         <Style x:Key="IconButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="38" />
             <Setter Property="Height" Value="38" />
             <Setter Property="Margin" Value="0,0,8,0" />
-            <Setter Property="Background" Value="#161D2A" />
-            <Setter Property="BorderBrush" Value="#2CFFFFFF" />
-            <Setter Property="Foreground" Value="#F3F6FC" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ChromeBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FontSize" Value="14" />
@@ -46,18 +103,23 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="11">
+                                CornerRadius="3">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#1D2636" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="#38FFFFFF" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#111823" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfacePressedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource TextSubtleBrush}" />
+                                <Setter TargetName="Root" Property="Opacity" Value="0.55" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -65,13 +127,10 @@
             </Setter>
         </Style>
 
-        <Style x:Key="HideButtonStyle" BasedOn="{StaticResource IconButtonStyle}" TargetType="Button">
-            <Setter Property="Width" Value="54" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="FontSize" Value="12" />
-        </Style>
-
-        <Style x:Key="SettingsIconButtonStyle" BasedOn="{StaticResource IconButtonStyle}" TargetType="Button">
+        <Style x:Key="IconPathButtonStyle" BasedOn="{StaticResource IconButtonStyle}" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -79,29 +138,81 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="11">
-                            <Viewbox Width="16" Height="16">
-                                <Canvas Width="20" Height="20">
-                                    <Ellipse Canvas.Left="6" Canvas.Top="6" Width="8" Height="8"
-                                             Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" />
-                                    <Line X1="10" Y1="1.8" X2="10" Y2="4.1" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="10" Y1="15.9" X2="10" Y2="18.2" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="1.8" Y1="10" X2="4.1" Y2="10" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="15.9" Y1="10" X2="18.2" Y2="10" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="4.1" Y1="4.1" X2="5.8" Y2="5.8" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="14.2" Y1="14.2" X2="15.9" Y2="15.9" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="14.2" Y1="5.8" X2="15.9" Y2="4.1" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="4.1" Y1="15.9" X2="5.8" Y2="14.2" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                </Canvas>
+                                CornerRadius="3">
+                            <Viewbox Width="15.5" Height="15.5">
+                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="1.75"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent"
+                                      Stretch="Uniform" />
                             </Viewbox>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#1D2636" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="#38FFFFFF" />
+                                <Setter Property="Foreground" Value="{DynamicResource HeaderIconHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#111823" />
+                                <Setter Property="Foreground" Value="{DynamicResource HeaderIconPressedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource TextSubtleBrush}" />
+                                <Setter TargetName="Root" Property="Opacity" Value="0.55" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HideButtonStyle" BasedOn="{StaticResource IconPathButtonStyle}" TargetType="Button">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="ToolTip" Value="隐藏便签" />
+            <Setter Property="CommandParameter" Value="{StaticResource IconHideGeometry}" />
+        </Style>
+
+        <Style x:Key="SettingsIconButtonStyle" BasedOn="{StaticResource IconPathButtonStyle}" TargetType="Button">
+            <Setter Property="ToolTip" Value="设置" />
+            <Setter Property="CommandParameter" Value="{StaticResource IconSettingsGeometry}" />
+        </Style>
+
+        <Style x:Key="AddTodoIconButtonStyle" BasedOn="{StaticResource IconPathButtonStyle}" TargetType="Button">
+            <Setter Property="ToolTip" Value="新增待办" />
+            <Setter Property="CommandParameter" Value="{StaticResource IconAddGeometry}" />
+        </Style>
+
+        <Style x:Key="CompactIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <Viewbox Width="14" Height="14">
+                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentPressedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -110,18 +221,18 @@
         </Style>
 
         <Style x:Key="TabButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="28" />
+            <Setter Property="Height" Value="26" />
             <Setter Property="Margin" Value="0" />
-            <Setter Property="Padding" Value="14,0,14,1" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#33FFFFFF" />
-            <Setter Property="Foreground" Value="#8899BB" />
-            <Setter Property="Background" Value="#16FFFFFF" />
+            <Setter Property="Padding" Value="2,0,2,0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSubtleBrush}" />
+            <Setter Property="Background" Value="Transparent" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Bottom" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -130,19 +241,20 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="7"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="False" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="Tag" Value="Active">
-                                <Setter TargetName="Root" Property="Background" Value="#44FFFFFF" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="#66FFFFFF" />
-                                <Setter Property="Foreground" Value="#EEEEFF" />
+                                <Setter TargetName="Root" Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                <Setter Property="FontSize" Value="19" />
+                                <Setter Property="FontWeight" Value="Bold" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#28FFFFFF" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -151,24 +263,49 @@
         </Style>
 
         <Style x:Key="CheckCircleButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="14" />
-            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="#84A4FF" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Ellipse Stroke="{TemplateBinding BorderBrush}"
-                                     StrokeThickness="{TemplateBinding BorderThickness}"
-                                     Fill="{TemplateBinding Background}" />
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                            <Ellipse Width="14"
+                                     Height="14"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Fill="Transparent"
+                                     Stroke="{TemplateBinding BorderBrush}"
+                                     StrokeThickness="{TemplateBinding BorderThickness}" />
+                            <Viewbox Width="10"
+                                     Height="10"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center">
+                                <Path x:Name="DoneMark"
+                                      Data="{StaticResource IconCheckGeometry}"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent"
+                                      Stretch="Uniform"
+                                      Visibility="Visible" />
+                            </Viewbox>
                         </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Tag.CompletedAt, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                <Setter TargetName="DoneMark" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Tag.Completing, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                <Setter TargetName="DoneMark" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -177,31 +314,89 @@
         <Style x:Key="PinBadgeButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="28" />
             <Setter Property="Height" Value="28" />
-            <Setter Property="Background" Value="#10FFFFFF" />
-            <Setter Property="BorderBrush" Value="#18FFFFFF" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#F3F6FC" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="ToolTip" Value="置顶" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="CommandParameter" Value="{StaticResource IconTopGeometry}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <Viewbox Width="13" Height="13">
+                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentPressedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InlineIconActionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="76" />
+            <Setter Property="MinWidth" Value="76" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
+                        <Border x:Name="Root"
+                                Width="{TemplateBinding Width}"
+                                Height="{TemplateBinding Height}"
+                                Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="9">
-                            <Viewbox Width="14" Height="14">
-                                <Canvas Width="20" Height="20">
-                                    <Path Stroke="{TemplateBinding Foreground}"
-                                          StrokeThickness="1.5"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <Viewbox Width="13" Height="13" Margin="0,0,6,0">
+                                    <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Stroke="{TemplateBinding Foreground}"
+                                          StrokeThickness="1.75"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
                                           StrokeLineJoin="Round"
-                                          Data="M7.5,3.5 L12.5,3.5 L11.5,8.5 L14.5,11.5 L13,13 L10,10.2 L10,17 L8.8,17 L8.8,10.2 L6,13 L4.5,11.5 L7.5,8.5 Z" />
-                                </Canvas>
-                            </Viewbox>
+                                          Fill="Transparent"
+                                          Stretch="Uniform" />
+                                </Viewbox>
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </StackPanel>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.9" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.78" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -210,7 +405,7 @@
         <Style x:Key="FlatGlyphButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="#DDE6FF" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -247,7 +442,7 @@
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="IsTabStop" Value="False" />
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="Background" Value="#66FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource ScrollThumbBrush}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
@@ -261,10 +456,10 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#99FFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource TextMutedBrush}" />
                 </Trigger>
                 <Trigger Property="IsDragging" Value="True">
-                    <Setter Property="Background" Value="#CCFFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource TextPrimaryBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -281,9 +476,8 @@
                             <Border Width="2"
                                     HorizontalAlignment="Center"
                                     CornerRadius="1"
-                                    Background="#14FFFFFF" />
+                                    Background="{DynamicResource ScrollTrackBrush}" />
                             <Track x:Name="PART_Track"
-                                   Margin="0,2,0,2"
                                    Focusable="False"
                                    IsDirectionReversed="True"
                                    Orientation="Vertical"
@@ -310,12 +504,12 @@
         </Style>
 
         <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#0CFFFFFF" />
-            <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceStrongBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ChromeBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#F3F6FC" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="Padding" Value="14,10" />
-            <Setter Property="CaretBrush" Value="#F3F6FC" />
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}" />
             <Setter Property="FontSize" Value="15" />
             <Setter Property="VerticalContentAlignment" Value="Top" />
             <Setter Property="TextAlignment" Value="Left" />
@@ -325,7 +519,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="12"
+                                CornerRadius="3"
                                 Padding="{TemplateBinding Padding}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="0,4,0,0"
@@ -344,7 +538,7 @@
         <Style x:Key="SliderThumbStyle" TargetType="Thumb">
             <Setter Property="Width" Value="14" />
             <Setter Property="Height" Value="14" />
-            <Setter Property="Background" Value="#88A0FF" />
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="IsTabStop" Value="False" />
@@ -356,8 +550,7 @@
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
                                  Fill="{TemplateBinding Background}"
-                                 Stroke="#DCE5FF"
-                                 StrokeThickness="1.5" />
+                                 SnapsToDevicePixels="True" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -372,12 +565,11 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid Height="20">
-                            <!-- 杞ㄩ亾鑳屾櫙 -->
                             <Border Height="3"
                                     VerticalAlignment="Center"
-                                    Background="#22FFFFFF"
-                                    CornerRadius="1.5" />
-                            <!-- Track锛屽彧璐熻矗瀹氫綅 Thumb锛屼笉娓叉煋浠讳綍鑳屾櫙 -->
+                                    Background="{DynamicResource SurfaceBrush}"
+                                    CornerRadius="1.5"
+                                    SnapsToDevicePixels="True" />
                             <Track x:Name="PART_Track"
                                    VerticalAlignment="Center"
                                    Height="20"
@@ -392,9 +584,11 @@
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
                                                 <Border Height="3"
+                                                        Margin="0,0,-7,0"
                                                         VerticalAlignment="Center"
-                                                        Background="#6F89FF"
-                                                        CornerRadius="1.5" />
+                                                        Background="{DynamicResource AccentBrush}"
+                                                        CornerRadius="1.5,0,0,1.5"
+                                                        SnapsToDevicePixels="True" />
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -424,8 +618,8 @@
         <Style x:Key="PrimaryActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="40" />
             <Setter Property="Padding" Value="0,1,0,0" />
-            <Setter Property="Background" Value="#6F8FF8" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SurfaceStrongBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FontWeight" Value="Bold" />
@@ -437,17 +631,17 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="12">
+                                CornerRadius="3">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#7D9AF9" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#6284EE" />
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentPressedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -455,12 +649,55 @@
             </Setter>
         </Style>
 
+        <Style x:Key="SecondaryActionButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryActionButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource SecondaryActionBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ChromeBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Width="{TemplateBinding Width}"
+                                Height="{TemplateBinding Height}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SecondaryActionHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SecondaryActionPressedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DraftEditActionButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryActionButtonStyle}">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="DraftEditSecondaryActionButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryActionButtonStyle}">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
         <Style x:Key="InlineActionButtonStyle" TargetType="Button">
             <Setter Property="MinWidth" Value="72" />
             <Setter Property="Height" Value="28" />
             <Setter Property="Padding" Value="16,0" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#F6F8FD" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="Bold" />
@@ -475,7 +712,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="14"
+                                CornerRadius="3"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -503,7 +740,7 @@
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="IsTabStop" Value="False" />
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="Background" Value="#66FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource ScrollThumbBrush}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
@@ -517,10 +754,10 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#99FFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource TextMutedBrush}" />
                 </Trigger>
                 <Trigger Property="IsDragging" Value="True">
-                    <Setter Property="Background" Value="#CCFFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource TextPrimaryBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -537,7 +774,7 @@
                               Background="Transparent">
                             <Border Width="2"
                                     HorizontalAlignment="Center"
-                                    Background="#18FFFFFF"
+                                    Background="{DynamicResource ScrollTrackBrush}"
                                     CornerRadius="999" />
                             <Track x:Name="PART_Track"
                                    Focusable="False"
@@ -576,9 +813,24 @@
                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
                                                     Margin="{TemplateBinding Padding}"
                                                     CanContentScroll="{TemplateBinding CanContentScroll}" />
+                            <Border Height="72"
+                                    VerticalAlignment="Bottom"
+                                    Background="{DynamicResource ChromeBackgroundBrush}"
+                                    IsHitTestVisible="False"
+                                    Panel.ZIndex="5"
+                                    Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}">
+                                <Border.OpacityMask>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#00000000" Offset="0" />
+                                        <GradientStop Color="#18000000" Offset="0.32" />
+                                        <GradientStop Color="#99000000" Offset="0.72" />
+                                        <GradientStop Color="#FF000000" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.OpacityMask>
+                            </Border>
                             <ScrollBar x:Name="PART_VerticalScrollBar"
                                        Width="6"
-                                       Margin="0,2,-8,2"
+                                       Margin="0,0,-8,0"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Stretch"
                                        Minimum="0"
@@ -619,20 +871,35 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="20"
-            BorderThickness="1"
-            BorderBrush="#26FFFFFF"
-            Background="#B8131B29">
-        <Grid>
+    <Border Margin="7"
+            CornerRadius="3"
+            BorderThickness="0"
+            BorderBrush="{DynamicResource ChromeBorderBrush}"
+            Background="{DynamicResource ChromeBackgroundBrush}"
+            Effect="{StaticResource WindowSoftShadow}">
+        <Grid MouseLeftButtonDown="Chrome_MouseLeftButtonDown">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="8" />
             </Grid.RowDefinitions>
 
+            <Border x:Name="TopResizeGrip"
+                    Grid.RowSpan="3"
+                    Height="10"
+                    VerticalAlignment="Top"
+                    Background="Transparent"
+                    Cursor="SizeNS"
+                    Panel.ZIndex="10"
+                    MouseLeftButtonDown="TopResizeGrip_MouseLeftButtonDown"
+                    MouseMove="TopResizeGrip_MouseMove"
+                    MouseLeftButtonUp="TopResizeGrip_MouseLeftButtonUp"
+                    LostMouseCapture="TopResizeGrip_LostMouseCapture" />
+
             <Grid Grid.Row="0"
                   Margin="14,10,14,0"
                   Background="Transparent"
+                  Cursor="SizeAll"
                   PreviewMouseLeftButtonDown="Header_MouseLeftButtonDown">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -641,29 +908,31 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource TabButtonStyle}"
-                            Margin="0,0,6,0"
+                            Margin="0,0,4,0"
                             Tag="{Binding PendingTabTag}"
                             Click="PendingTab_Click"
-                            Content="待办" />
+                            Content="Todo" />
                     <Button Style="{StaticResource TabButtonStyle}"
                             Margin="0"
                             Tag="{Binding CompletedTabTag}"
                             Click="CompletedTab_Click"
-                            Content="已办" />
+                            Content="Done" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Style="{StaticResource AddTodoIconButtonStyle}"
+                            Visibility="{Binding IsPendingView, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Click="AddTodoToggleButton_Click" />
                     <Button Style="{StaticResource SettingsIconButtonStyle}"
-                            Content="⚙"
+                            Visibility="{Binding IsPendingView, Converter={StaticResource BoolToVisibilityConverter}}"
                             Click="SettingsButton_Click" />
                     <Button Style="{StaticResource HideButtonStyle}"
                             Margin="0"
-                            Content="隐藏"
                             Click="HideButton_Click" />
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="14,10,14,14">
+            <Grid Grid.Row="1" Margin="14,16,14,14">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -673,13 +942,14 @@
                 <Border Grid.Row="0"
                         Padding="14"
                         Margin="0,0,0,12"
-                        CornerRadius="16"
-                        Background="#10FFFFFF"
-                        BorderBrush="#18FFFFFF"
-                        BorderThickness="1"
-                        Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+                        CornerRadius="3"
+                        Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource ChromeBorderBrush}"
+                        BorderThickness="0"
+                        Visibility="{Binding IsSettingsPanelActiveInCurrentView, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
@@ -689,17 +959,14 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="#F3F6FC"
+                            <TextBlock Foreground="{DynamicResource TextPrimaryBrush}"
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Text="设置" />
                             <Button Grid.Column="1"
-                                    Width="24"
-                                    Height="24"
-                                    Style="{StaticResource FlatGlyphButtonStyle}"
-                                    Foreground="#DDE6FF"
-                                    FontSize="18"
-                                    Content="✕"
+                                    Style="{StaticResource CompactIconButtonStyle}"
+                                    ToolTip="关闭设置"
+                                    CommandParameter="{StaticResource IconXGeometry}"
                                     Click="SettingsCloseButton_Click" />
                         </Grid>
 
@@ -710,7 +977,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock VerticalAlignment="Center"
-                                       Foreground="#BBC6DC"
+                                       Foreground="{DynamicResource TextMutedBrush}"
                                        FontSize="12"
                                        Text="透明度" />
                             <Slider Grid.Column="1"
@@ -721,30 +988,54 @@
                                     Value="{Binding OpacityPercent, Mode=TwoWay}" />
                             <TextBlock Grid.Column="2"
                                        VerticalAlignment="Center"
-                                       Foreground="#F3F6FC"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        FontSize="12"
                                        FontWeight="SemiBold"
                                        Text="{Binding OpacityPercent, StringFormat={}{0:0}%}" />
                         </Grid>
+
+                        <Button Grid.Row="2"
+                                Margin="0,14,0,0"
+                                Height="30"
+                                Background="{DynamicResource SurfaceStrongBrush}"
+                                BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                Style="{StaticResource InlineActionButtonStyle}"
+                                Content="{Binding ThemeToggleText}"
+                                Click="ThemeToggleButton_Click" />
                     </Grid>
                 </Border>
 
                 <Border Grid.Row="1"
+                        x:Name="DraftPanel"
                         Padding="14"
                         Margin="0,0,0,12"
-                        CornerRadius="16"
-                        Background="#09FFFFFF"
-                        BorderBrush="#1AFFFFFF"
-                        BorderThickness="1"
-                        Visibility="{Binding IsPendingView, Converter={StaticResource BoolToVisibilityConverter}}">
+                        CornerRadius="3"
+                        Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource ChromeBorderBrush}"
+                        BorderThickness="0"
+                        RenderTransformOrigin="0.5,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsPendingView}" Value="True" />
+                                        <Condition Binding="{Binding IsDraftOpen}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <StackPanel>
                         <Grid>
                             <Border Height="96"
                                     MaxHeight="96"
-                                    Background="#0CFFFFFF"
-                                    BorderBrush="#1AFFFFFF"
-                                    BorderThickness="1"
-                                    CornerRadius="12"
+                                    Background="{DynamicResource SurfaceStrongBrush}"
+                                    BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                    BorderThickness="0"
+                                    CornerRadius="3"
                                     Padding="14,10">
                                 <Grid>
                                      <TextBox x:Name="DraftInputTextBox"
@@ -752,62 +1043,76 @@
                                               Background="Transparent"
                                               BorderBrush="Transparent"
                                               BorderThickness="0"
-                                              Foreground="#F3F6FC"
-                                              CaretBrush="#F3F6FC"
+                                              Foreground="{DynamicResource TextPrimaryBrush}"
+                                              CaretBrush="{DynamicResource AccentBrush}"
                                               FontSize="15"
                                               TextBlock.LineHeight="22"
                                               TextBlock.LineStackingStrategy="BlockLineHeight"
                                               Padding="0"
                                               VerticalContentAlignment="Top"
                                               TextAlignment="Left"
+                                              GotKeyboardFocus="DraftInputTextBox_GotKeyboardFocus"
                                               PreviewKeyDown="DraftTextBox_PreviewKeyDown"
                                               Text="{Binding DraftText, UpdateSourceTrigger=PropertyChanged}"
                                               AcceptsReturn="True"
                                               TextWrapping="Wrap"
                                               VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled" />
-                                     <TextBlock Margin="0,7,0,0"
-                                                VerticalAlignment="Top"
-                                                HorizontalAlignment="Left"
-                                                Foreground="#93A0BB"
-                                                FontSize="15"
-                                                 TextBlock.LineHeight="22"
-                                                 TextBlock.LineStackingStrategy="BlockLineHeight"
-                                                 TextAlignment="Left"
-                                                 IsHitTestVisible="False"
-                                                 Text="写点要做的事">
-                                         <TextBlock.Style>
-                                             <Style TargetType="TextBlock">
-                                                 <Setter Property="Visibility" Value="Collapsed" />
-                                                 <Style.Triggers>
-                                                     <MultiDataTrigger>
-                                                         <MultiDataTrigger.Conditions>
-                                                             <Condition Binding="{Binding DraftText, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}"
-                                                                        Value="{x:Static Visibility.Visible}" />
-                                                             <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=DraftInputTextBox}"
-                                                                        Value="False" />
-                                                         </MultiDataTrigger.Conditions>
-                                                         <Setter Property="Visibility" Value="Visible" />
-                                                     </MultiDataTrigger>
-                                                 </Style.Triggers>
-                                             </Style>
-                                         </TextBlock.Style>
-                                     </TextBlock>
-                                 </Grid>
+                                  </Grid>
                             </Border>
                         </Grid>
 
-                        <Button Margin="0,12,0,0"
-                                Style="{StaticResource PrimaryActionButtonStyle}"
-                                Content="记下"
-                                Click="AddButton_Click" />
+                        <Grid Margin="0,12,0,0">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDraftEditMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Button Content="{Binding DraftPrimaryActionText}"
+                                    Click="AddButton_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryActionButtonStyle}">
+                                        <Setter Property="Opacity" Value="0.72" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasDraftText}" Value="True">
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+
+                        <Grid Margin="0,12,0,0"
+                              Visibility="{Binding IsDraftEditMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Content="提交"
+                                    Click="AddButton_Click"
+                                    Style="{StaticResource DraftEditActionButtonStyle}" />
+
+                            <Button Grid.Column="2"
+                                    Content="撤销"
+                                    Click="DraftCancelButton_Click"
+                                    Style="{StaticResource DraftEditSecondaryActionButtonStyle}" />
+                        </Grid>
                     </StackPanel>
                 </Border>
 
                 <Grid Grid.Row="2">
                     <TextBlock HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Foreground="#BBC6DC"
+                               Foreground="{DynamicResource TextMutedBrush}"
                                FontSize="14"
                                Text="{Binding EmptyStateText}"
                                Visibility="{Binding HasVisibleItems, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
@@ -818,13 +1123,6 @@
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              Visibility="{Binding HasVisibleItems, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ListBox.OpacityMask>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="#FFFFFFFF" Offset="0" />
-                                <GradientStop Color="#FFFFFFFF" Offset="0.82" />
-                                <GradientStop Color="#00FFFFFF" Offset="1" />
-                            </LinearGradientBrush>
-                        </ListBox.OpacityMask>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="0" />
@@ -846,114 +1144,139 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type local:TodoItem}">
                                 <Border x:Name="CardRoot"
-                                        CornerRadius="14"
-                                        Background="#10FFFFFF"
-                                        BorderBrush="#1AFFFFFF"
-                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Background="Transparent"
+                                        BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                        BorderThickness="0"
+                                        RenderTransformOrigin="0.5,0"
                                         PreviewMouseLeftButtonDown="TodoItem_MouseLeftButtonDown"
                                         PreviewMouseLeftButtonUp="TodoItem_MouseLeftButtonUp"
                                         MouseLeave="TodoItem_MouseLeave"
                                         Tag="{Binding}">
+                                    <Border.RenderTransform>
+                                        <TranslateTransform />
+                                    </Border.RenderTransform>
                                     <Grid x:Name="CardGrid">
-                                        <Ellipse x:Name="PinMark"
-                                                 Width="8"
-                                                 Height="8"
-                                                 Margin="16,12,0,0"
-                                                 HorizontalAlignment="Left"
-                                                 VerticalAlignment="Top"
-                                                 Fill="#FFD86B"
-                                                 Visibility="Collapsed" />
-
-                                        <Grid x:Name="CardContent"
-                                              Margin="16,16,16,10"
-                                              MinHeight="52">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <Button Style="{StaticResource CheckCircleButtonStyle}"
-                                                    Grid.Column="0"
-                                                    Margin="0,0,14,0"
-                                                    VerticalAlignment="Top"
-                                                    Tag="{Binding}"
-                                                    Click="ToggleDoneButton_Click">
-                                                <TextBlock FontSize="11"
-                                                           FontWeight="Bold"
-                                                           Text="✓"
-                                                           Visibility="{Binding CompletedAt, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            </Button>
-
-                                            <TextBlock Grid.Column="1"
-                                                       Grid.Row="0"
-                                                       Margin="0,0,42,15"
-                                                       Foreground="#F3F6FC"
-                                                       FontSize="15"
-                                                       VerticalAlignment="Top"
-                                                       TextAlignment="Left"
-                                                       TextWrapping="Wrap"
-                                                       Text="{Binding Text}" />
-                                            <TextBlock x:Name="SecondaryTextBlock"
-                                                       Grid.Column="1"
-                                                       Grid.Row="1"
-                                                       Margin="0,0,52,0"
-                                                       HorizontalAlignment="Right"
-                                                       VerticalAlignment="Bottom"
-                                                       Foreground="#AEB9D3"
-                                                       FontSize="10"
-                                                       TextAlignment="Right"
-                                                       Visibility="Collapsed"
-                                                       Text="{Binding SecondaryText}" />
-                                        </Grid>
-
-                                        <TextBlock x:Name="SecondaryOverlayTextBlock"
-                                                   Margin="0,0,14,8"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Bottom"
-                                                   Foreground="#AEB9D3"
-                                                   FontSize="9"
-                                                   TextAlignment="Right"
-                                                   Text="{Binding SecondaryText}" />
-
-                                        <Button x:Name="PinButton"
-                                                Margin="0,10,12,0"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Top"
-                                                Panel.ZIndex="6"
-                                                Style="{StaticResource PinBadgeButtonStyle}"
+                                        <Button x:Name="CompleteActionButton"
+                                                Style="{StaticResource CheckCircleButtonStyle}"
+                                                Margin="10,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                Panel.ZIndex="4"
+                                                Opacity="{Binding ActionButtonOpacity}"
+                                                RenderTransformOrigin="0.5,0.5"
                                                 Tag="{Binding}"
-                                                Click="PinButton_Click"
-                                                Visibility="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock Text="📌"
-                                                       FontSize="11"
-                                                       FontWeight="Bold" />
+                                                Click="ToggleDoneButton_Click"
+                                                Visibility="Collapsed">
+                                            <Button.RenderTransform>
+                                                <ScaleTransform x:Name="CompleteActionScale"
+                                                                ScaleX="{Binding ActionButtonScale}"
+                                                                ScaleY="{Binding ActionButtonScale}" />
+                                            </Button.RenderTransform>
                                         </Button>
+
+                                        <Border x:Name="CardSurface"
+                                                CornerRadius="3"
+                                                Background="{DynamicResource SurfaceBrush}"
+                                                BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                                BorderThickness="0"
+                                                RenderTransformOrigin="0.5,0.5">
+                                            <Border.RenderTransform>
+                                                <TranslateTransform x:Name="SurfaceTranslate"
+                                                                    X="{Binding ActionSurfaceOffset}" />
+                                            </Border.RenderTransform>
+                                            <Grid x:Name="ContentLayer">
+                                                <Border x:Name="CardHoverOverlay"
+                                                        Background="{DynamicResource CardSelectedSurfaceBrush}"
+                                                        CornerRadius="3"
+                                                        Opacity="0"
+                                                        IsHitTestVisible="False" />
+
+                                                <Grid x:Name="CardContent"
+                                                      Margin="16,16,16,10"
+                                                      MinHeight="52">
+                                                    <Grid>
+                                                        <TextBlock Margin="0,0,42,15"
+                                                                   Foreground="{DynamicResource NoteTextBrush}"
+                                                                   FontSize="15"
+                                                                   VerticalAlignment="Top"
+                                                                   TextAlignment="Left"
+                                                                   TextWrapping="Wrap"
+                                                                   Text="{Binding Text}"
+                                                                   Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                                        <TextBlock Margin="0,0,42,15"
+                                                                   Foreground="{DynamicResource EditStatusBrush}"
+                                                                   FontSize="15"
+                                                                   FontWeight="SemiBold"
+                                                                   VerticalAlignment="Top"
+                                                                   Text="编辑中..."
+                                                                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                    </Grid>
+                                                </Grid>
+
+                                                <TextBlock x:Name="SecondaryOverlayTextBlock"
+                                                           Margin="0,0,14,8"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Bottom"
+                                                           Foreground="{DynamicResource NoteTextSubtleBrush}"
+                                                           FontSize="9"
+                                                           TextAlignment="Right"
+                                                           Text="{Binding SecondaryText}" />
+
+                                                <Button x:Name="PinButton"
+                                                        Margin="0,10,12,0"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        Panel.ZIndex="6"
+                                                        Style="{StaticResource PinBadgeButtonStyle}"
+                                                        Tag="{Binding}"
+                                                        Click="PinButton_Click"
+                                                        Visibility="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                <Grid x:Name="DoneCorner"
+                                                      Width="8.87"
+                                                      Height="8.87"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Top"
+                                                      Panel.ZIndex="8"
+                                                      IsHitTestVisible="False">
+                                                    <Path Data="M0,0 L6.854,0 Q8.87,0 8.87,2.016 L8.87,8.87 Z"
+                                                          Fill="{DynamicResource DoneCornerBrush}"
+                                                          Stretch="Fill" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
 
                                         <Border x:Name="DeleteOverlay"
                                                 Panel.ZIndex="20"
-                                                Background="#EE0E1620"
-                                                CornerRadius="13"
+                                                Background="{DynamicResource OverlayBrush}"
+                                                BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="3"
                                                 Visibility="Collapsed">
                                             <StackPanel VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Margin="0">
                                                 <TextBlock HorizontalAlignment="Center"
-                                                           Foreground="#FFB8B8"
+                                                           Foreground="{DynamicResource DangerBrush}"
                                                            FontSize="12"
                                                            FontWeight="Bold"
                                                            Text="{Binding DataContext.DeleteOverlayText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                                 <StackPanel Orientation="Horizontal"
                                                             HorizontalAlignment="Center"
                                                             Margin="0,10,0,0">
-                                                    <Button Style="{StaticResource InlineActionButtonStyle}"
+                                                    <Button Style="{StaticResource InlineIconActionButtonStyle}"
                                                             Margin="0,0,8,0"
-                                                            Background="#88C0392B"
-                                                            BorderBrush="#AAC0392B"
+                                                            Background="{DynamicResource DangerBrush}"
+                                                            BorderBrush="Transparent"
+                                                            CommandParameter="{StaticResource IconTrashGeometry}"
                                                             Tag="{Binding}"
                                                             Click="DeleteConfirmButton_Click"
                                                             Content="删除" />
-                                                    <Button Style="{StaticResource InlineActionButtonStyle}"
-                                                            Background="#33FFFFFF"
-                                                            BorderBrush="#44FFFFFF"
+                                                    <Button Style="{StaticResource InlineIconActionButtonStyle}"
+                                                            Background="{DynamicResource SurfaceStrongBrush}"
+                                                            BorderBrush="Transparent"
+                                                            CommandParameter="{StaticResource IconXGeometry}"
                                                             Tag="{Binding}"
                                                             Click="CancelDeleteButton_Click"
                                                             Content="撤销" />
@@ -968,44 +1291,204 @@
                                             <Condition Binding="{Binding Pinned}" Value="True" />
                                             <Condition Binding="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
                                         </MultiDataTrigger.Conditions>
-                                        <Setter TargetName="CardRoot" Property="Background" Value="#20FFD254" />
-                                        <Setter TargetName="CardRoot" Property="BorderBrush" Value="#52FFD254" />
-                                        <Setter TargetName="PinMark" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="CardSurface" Property="Background" Value="{DynamicResource PinnedSurfaceBrush}" />
                                         <Setter TargetName="PinButton" Property="Visibility" Value="Visible" />
-                                        <Setter TargetName="PinButton" Property="Background" Value="#2EFFD254" />
-                                        <Setter TargetName="PinButton" Property="BorderBrush" Value="#66FFD254" />
-                                        <Setter TargetName="PinButton" Property="Foreground" Value="#FFD86B" />
+                                        <Setter TargetName="PinButton" Property="Foreground" Value="{DynamicResource PinnedIconBrush}" />
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
                                             <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
                                             <Condition Binding="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
                                         </MultiDataTrigger.Conditions>
-                                        <Setter TargetName="CardRoot" Property="Background" Value="#14FFFFFF" />
-                                        <Setter TargetName="CardRoot" Property="BorderBrush" Value="#24FFFFFF" />
                                         <Setter TargetName="PinButton" Property="Visibility" Value="Visible" />
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
                                             <Condition Binding="{Binding Pinned}" Value="True" />
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=CardRoot}" Value="True" />
                                             <Condition Binding="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
                                         </MultiDataTrigger.Conditions>
-                                        <Setter TargetName="CardRoot" Property="Background" Value="#24FFD254" />
-                                        <Setter TargetName="CardRoot" Property="BorderBrush" Value="#68FFD254" />
+                                        <Setter TargetName="CardHoverOverlay" Property="Background" Value="{DynamicResource PinnedHoverOverlayBrush}" />
                                     </MultiDataTrigger>
+                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="CardRoot">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="CardHoverOverlay"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="1"
+                                                                 Duration="0:0:0.16" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="CardRoot">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="CardHoverOverlay"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0"
+                                                                 Duration="0:0:0.22" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <DataTrigger Binding="{Binding CompletedAt}" Value="{x:Null}">
+                                        <Setter TargetName="DoneCorner" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ActionOpen}" Value="True">
+                                        <Setter TargetName="CompleteActionButton" Property="Visibility" Value="Visible" />
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="SurfaceTranslate"
+                                                                     Storyboard.TargetProperty="X"
+                                                                     To="0"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.16">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionButton"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.12" />
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionScale"
+                                                                     Storyboard.TargetProperty="ScaleX"
+                                                                     To="0.72"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.14" />
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionScale"
+                                                                     Storyboard.TargetProperty="ScaleY"
+                                                                     To="0.72"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.14" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding ActionOpen}" Value="True" />
+                                            <Condition Binding="{Binding SuppressActionOpenAnimation}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="SurfaceTranslate"
+                                                                     Storyboard.TargetProperty="X"
+                                                                     From="0"
+                                                                     To="50"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.16">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionButton"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     From="0"
+                                                                     To="1"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.14" />
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionScale"
+                                                                     Storyboard.TargetProperty="ScaleX"
+                                                                     From="0.72"
+                                                                     To="1"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.16">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <BackEase Amplitude="0.25" EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionScale"
+                                                                     Storyboard.TargetProperty="ScaleY"
+                                                                     From="0.72"
+                                                                     To="1"
+                                                                     FillBehavior="Stop"
+                                                                     Duration="0:0:0.16">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <BackEase Amplitude="0.25" EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.EnterActions>
+                                    </MultiDataTrigger>
+                                    <DataTrigger Binding="{Binding Completing}" Value="True">
+                                        <Setter TargetName="CompleteActionButton" Property="Visibility" Value="Visible" />
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="SurfaceTranslate"
+                                                                     Storyboard.TargetProperty="X"
+                                                                     To="108"
+                                                                     FillBehavior="HoldEnd"
+                                                                     Duration="0:0:0.22">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseIn" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetName="CardSurface"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0"
+                                                                     FillBehavior="HoldEnd"
+                                                                     Duration="0:0:0.2" />
+                                                    <DoubleAnimation Storyboard.TargetName="CompleteActionButton"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0"
+                                                                     BeginTime="0:0:0.06"
+                                                                     FillBehavior="HoldEnd"
+                                                                     Duration="0:0:0.14" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding PendingDelete}" Value="True">
-                                        <Setter TargetName="CardContent" Property="Opacity" Value="0" />
-                                        <Setter TargetName="CardContent" Property="IsHitTestVisible" Value="False" />
-                                        <Setter TargetName="SecondaryOverlayTextBlock" Property="Opacity" Value="0" />
-                                        <Setter TargetName="PinMark" Property="Visibility" Value="Collapsed" />
+                                        <Setter TargetName="CardSurface" Property="Opacity" Value="0" />
+                                        <Setter TargetName="CardSurface" Property="IsHitTestVisible" Value="False" />
+                                        <Setter TargetName="CompleteActionButton" Property="Visibility" Value="Hidden" />
                                         <Setter TargetName="PinButton" Property="Visibility" Value="Hidden" />
                                         <Setter TargetName="DeleteOverlay" Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="CardSurface" Property="Background" Value="{DynamicResource EditSurfaceBrush}" />
+                                        <Setter TargetName="PinButton" Property="Visibility" Value="Hidden" />
+                                        <Setter TargetName="CompleteActionButton" Property="Visibility" Value="Hidden" />
+                                        <Setter TargetName="SecondaryOverlayTextBlock" Property="Foreground" Value="{DynamicResource EditStatusBrush}" />
+                                        <Setter TargetName="CardHoverOverlay" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="CardRoot"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     From="0"
+                                                                     To="1"
+                                                                     Duration="0:0:0.24" />
+                                                    <DoubleAnimation Storyboard.TargetName="CardRoot"
+                                                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="-14"
+                                                                     To="0"
+                                                                     Duration="0:0:0.28">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut" />
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetName="CardSurface"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     From="0.82"
+                                                                     To="1"
+                                                                     Duration="0:0:0.22" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+
                 </Grid>
             </Grid>
 
@@ -1013,7 +1496,12 @@
             <Border Grid.Row="2"
                     Background="Transparent"
                     Cursor="SizeNS"
-                    MouseLeftButtonDown="ResizeGrip_MouseLeftButtonDown" />
+                    ToolTip="拖拽调整高度"
+                    MouseLeftButtonDown="ResizeGrip_MouseLeftButtonDown"
+                    MouseMove="ResizeGrip_MouseMove"
+                    MouseLeftButtonUp="ResizeGrip_MouseLeftButtonUp"
+                    LostMouseCapture="ResizeGrip_LostMouseCapture" />
         </Grid>
     </Border>
 </Window>
+

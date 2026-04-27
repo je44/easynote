@@ -12,6 +12,12 @@ public class TodoItem : INotifyPropertyChanged
     private DateTime _createdAt;
     private DateTime? _completedAt;
     private bool _pendingDelete;
+    private bool _actionOpen;
+    private bool _completing;
+    private bool _suppressActionOpenAnimation;
+    private bool _isNew;
+    private bool _isEditing;
+    private string _editingText = string.Empty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -24,13 +30,25 @@ public class TodoItem : INotifyPropertyChanged
     public string Text
     {
         get => _text;
-        set => SetField(ref _text, value);
+        set
+        {
+            if (SetField(ref _text, value))
+            {
+                OnPropertyChanged(nameof(SecondaryText));
+            }
+        }
     }
 
     public bool Pinned
     {
         get => _pinned;
-        set => SetField(ref _pinned, value);
+        set
+        {
+            if (SetField(ref _pinned, value))
+            {
+                OnPropertyChanged(nameof(SecondaryText));
+            }
+        }
     }
 
     public DateTime CreatedAt
@@ -65,10 +83,83 @@ public class TodoItem : INotifyPropertyChanged
     }
 
     [JsonIgnore]
+    public bool ActionOpen
+    {
+        get => _actionOpen;
+        set
+        {
+            if (SetField(ref _actionOpen, value))
+            {
+                OnPropertyChanged(nameof(ActionSurfaceOffset));
+                OnPropertyChanged(nameof(ActionButtonOpacity));
+                OnPropertyChanged(nameof(ActionButtonScale));
+            }
+        }
+    }
+
+    [JsonIgnore]
+    public bool Completing
+    {
+        get => _completing;
+        set => SetField(ref _completing, value);
+    }
+
+    [JsonIgnore]
+    public bool SuppressActionOpenAnimation
+    {
+        get => _suppressActionOpenAnimation;
+        set => SetField(ref _suppressActionOpenAnimation, value);
+    }
+
+    [JsonIgnore]
+    public bool IsNew
+    {
+        get => _isNew;
+        set => SetField(ref _isNew, value);
+    }
+
+    [JsonIgnore]
+    public bool IsEditing
+    {
+        get => _isEditing;
+        set
+        {
+            if (SetField(ref _isEditing, value))
+            {
+                OnPropertyChanged(nameof(SecondaryText));
+            }
+        }
+    }
+
+    [JsonIgnore]
+    public string EditingText
+    {
+        get => _editingText;
+        set
+        {
+            if (SetField(ref _editingText, value))
+            {
+                OnPropertyChanged(nameof(SecondaryText));
+            }
+        }
+    }
+
+    [JsonIgnore]
     public string SecondaryText =>
-        CompletedAt is null
-            ? $"创建日期 {CreatedAt:yyyy/MM/dd HH:mm}"
-            : $"完成日期 {CompletedAt.Value:yyyy/MM/dd HH:mm}";
+        IsEditing
+            ? string.Empty
+            : CompletedAt is null
+                ? (Pinned ? $"已置顶 • {CreatedAt:M月d日}" : $"创建时间 {CreatedAt:M月d日}")
+                : $"完成时间 {CompletedAt.Value:M月d日}";
+
+    [JsonIgnore]
+    public double ActionSurfaceOffset => ActionOpen ? 50 : 0;
+
+    [JsonIgnore]
+    public double ActionButtonOpacity => ActionOpen ? 1 : 0;
+
+    [JsonIgnore]
+    public double ActionButtonScale => ActionOpen ? 1 : 0.72;
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {

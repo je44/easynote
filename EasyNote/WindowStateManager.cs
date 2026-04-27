@@ -12,19 +12,21 @@ internal sealed class SavedWindowPlacement
     public double Width { get; set; }
     public double Height { get; set; }
     public double? OpacityPercent { get; set; }
+    public bool? IsNightTheme { get; set; }
 
     [JsonConstructor]
     public SavedWindowPlacement()
     {
     }
 
-    public SavedWindowPlacement(double x, double y, double width, double height, double? opacityPercent = null)
+    public SavedWindowPlacement(double x, double y, double width, double height, double? opacityPercent = null, bool? isNightTheme = null)
     {
         X = x;
         Y = y;
         Width = width;
         Height = height;
         OpacityPercent = opacityPercent;
+        IsNightTheme = isNightTheme;
     }
 }
 
@@ -33,17 +35,17 @@ internal static class WindowStateManager
     private static readonly string StatePath = Path.Combine(AppPaths.AppDataDirectory, "window-state.json");
 
     private const double MaxWindowWidth = 800;
-    private const double MaxWindowHeight = 920;
+    private const double MaxWindowHeight = 1020;
 
     public static bool SavePosition(Window window)
     {
         if (!TryBuildPlacement(window, out var placement))
             return false;
 
-        return SavePosition(placement.X, placement.Y, placement.Width, placement.Height, placement.OpacityPercent);
+        return SavePosition(placement.X, placement.Y, placement.Width, placement.Height, placement.OpacityPercent, placement.IsNightTheme);
     }
 
-    public static bool SavePosition(double x, double y, double width, double height, double? opacityPercent = null)
+    public static bool SavePosition(double x, double y, double width, double height, double? opacityPercent = null, bool? isNightTheme = null)
     {
         if (!IsFinite(x) || !IsFinite(y) || !IsFinite(width) || !IsFinite(height) || width <= 0 || height <= 0)
             return false;
@@ -54,7 +56,7 @@ internal static class WindowStateManager
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(StatePath)!);
-            var json = JsonSerializer.Serialize(new SavedWindowPlacement(x, y, width, height, opacityPercent));
+            var json = JsonSerializer.Serialize(new SavedWindowPlacement(x, y, width, height, opacityPercent, isNightTheme));
             File.WriteAllText(StatePath, json);
             return true;
         }
@@ -64,12 +66,12 @@ internal static class WindowStateManager
         }
     }
 
-    public static void RestorePosition(Window window)
+    public static bool RestorePosition(Window window)
     {
         try
         {
             if (!TryReadPlacement(out var state))
-                return;
+                return false;
 
             var screenW = Math.Max(1d, SystemParameters.VirtualScreenWidth);
             var screenH = Math.Max(1d, SystemParameters.VirtualScreenHeight);
@@ -88,9 +90,15 @@ internal static class WindowStateManager
 
             if (window is MainWindow mainWindow && state.OpacityPercent is double opacityPercent)
                 mainWindow.OpacityPercent = opacityPercent;
+
+            if (window is MainWindow themedWindow && state.IsNightTheme is bool isNightTheme)
+                themedWindow.IsNightTheme = isNightTheme;
+
+            return true;
         }
         catch
         {
+            return false;
         }
     }
 
@@ -132,7 +140,8 @@ internal static class WindowStateManager
             return false;
 
         double? opacityPercent = window is MainWindow mainWindow ? mainWindow.OpacityPercent : null;
-        placement = new SavedWindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height, opacityPercent);
+        bool? isNightTheme = window is MainWindow themedWindow ? themedWindow.IsNightTheme : null;
+        placement = new SavedWindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height, opacityPercent, isNightTheme);
         return true;
     }
 
