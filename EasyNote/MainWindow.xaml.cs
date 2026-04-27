@@ -15,7 +15,7 @@ namespace EasyNote;
 
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
-    private const double MinimumWindowHeight = 552;
+    private const double DebugMinimumWindowHeight = 552;
     private const double TopRightDockMargin = 20;
 
     #region Win32
@@ -130,7 +130,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         InitializeComponent();
 #if DEBUG
-        MinHeight = MinimumWindowHeight;
+        MinHeight = DebugMinimumWindowHeight;
 #endif
         DataContext = this;
         Loaded += OnLoaded;
@@ -1110,10 +1110,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void DraftTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape && IsDraftEditMode)
+        if (e.Key == Key.Escape)
         {
             e.Handled = true;
-            CancelTodoEdit(_editingTodoItem);
+            if (IsDraftEditMode)
+            {
+                CancelTodoEdit(_editingTodoItem);
+            }
+            else
+            {
+                IsDraftOpen = false;
+                LogWindowEvent("DraftTextBox_PreviewKeyDown.CloseDraft");
+            }
             return;
         }
 
