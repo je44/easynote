@@ -81,6 +81,7 @@ if (Test-Path $portableDir) {
 
 New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
 Copy-Item -Path (Join-Path $publishDir "*") -Destination $portableDir -Recurse -Force
+Get-ChildItem -Path $portableDir -Include "*.pdb", "*.xml" -Recurse -File | Remove-Item -Force
 New-Item -ItemType Directory -Path (Join-Path $portableDir "data") -Force | Out-Null
 New-Item -ItemType File -Path (Join-Path $portableDir "portable.marker") -Force | Out-Null
 
@@ -126,6 +127,9 @@ if ($shouldBuildInstaller) {
     Write-Host ""
     Write-Host "Building EXE package..."
     & $iscc.Source "/DPublishDir=$publishDir" "/DMyAppVersion=$Version" "/DOutputBaseFilename=$OutputBaseFilename" $installerScript
+    if ($LASTEXITCODE -ne 0) {
+        throw "Installer packaging failed with exit code $LASTEXITCODE"
+    }
 }
 
 Write-Host ""
