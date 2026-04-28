@@ -287,8 +287,8 @@ public partial class App : System.Windows.Application
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "tray-show",
-                Passed = _mainWindow.IsVisible,
-                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}"
+                Passed = _mainWindow.IsVisible && _mainWindow.IsTopLevelWindowForAutomation(),
+                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}, topLevel={_mainWindow.IsTopLevelWindowForAutomation()}"
             });
 
             var hotkeyTriggered = _mainWindow.TriggerHotkeyForAutomation();

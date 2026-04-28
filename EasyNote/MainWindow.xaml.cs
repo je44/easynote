@@ -482,7 +482,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("ShowWindow.Before");
         _hiddenByUser = false;
         Show();
-        ReenterDesktopModeSoon();
+        EnsureInteractiveMode();
         LogWindowEvent("ShowWindow.After");
     }
 
@@ -494,7 +494,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
 
         PersistWindowPlacement("DockToTopRight");
-        ReenterDesktopModeSoon();
         LogWindowEvent("DockToTopRight.Done");
     }
 
@@ -1375,6 +1374,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     internal bool TriggerHotkeyForAutomation()
         => _hwnd != IntPtr.Zero && PostMessage(_hwnd, WM_HOTKEY, new IntPtr(HOTKEY_SHOW), IntPtr.Zero);
+
+    internal bool IsTopLevelWindowForAutomation()
+        => _hwnd != IntPtr.Zero && GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT) == IntPtr.Zero;
 
     private void ResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
