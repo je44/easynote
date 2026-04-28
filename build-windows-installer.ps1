@@ -1,6 +1,9 @@
 param(
     [string]$Configuration = "Release",
 
+    [ValidateSet("win-x64", "win-x86")]
+    [string]$RuntimeIdentifier = "win-x64",
+
     [string]$Version,
 
     [string]$OutputBaseFilename,
@@ -18,15 +21,15 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $useExistingPublishDir = $PSBoundParameters.ContainsKey("PublishDir") -and -not [string]::IsNullOrWhiteSpace($PublishDir)
 $isStandardRelease = $Configuration -ieq "Release"
 $useOfficialMetadata = $UseReleaseMetadata.IsPresent -or $isStandardRelease
-$runtimeIdentifier = "win-x64"
-$publishFolder = if ($isStandardRelease) { "app" } else { "custom" }
+$architecture = if ($RuntimeIdentifier -eq "win-x86") { "x86" } else { "x64" }
+$publishFolder = if ($isStandardRelease -and $RuntimeIdentifier -eq "win-x64") { "app" } elseif ($isStandardRelease) { "app-$architecture" } else { "custom-$architecture" }
 $publishDir = if ($useExistingPublishDir) {
     (Resolve-Path $PublishDir).Path
 } else {
     Join-Path $root (Join-Path "publish" $publishFolder)
 }
-$portableDir = Join-Path $root (Join-Path "publish" "portable")
-$portableZipPath = Join-Path $root (Join-Path "publish" "EasyNote-portable-win-x64.zip")
+$portableDir = Join-Path $root (Join-Path "publish" "portable-$architecture")
+$portableZipPath = Join-Path $root (Join-Path "publish" "EasyNote-v$Version-portable-win-$architecture.zip")
 $installerScript = Join-Path $root "installer.iss"
 
 if (-not $PSBoundParameters.ContainsKey("Version")) {
@@ -34,7 +37,14 @@ if (-not $PSBoundParameters.ContainsKey("Version")) {
 }
 
 if (-not $PSBoundParameters.ContainsKey("OutputBaseFilename")) {
-    $OutputBaseFilename = if ($useOfficialMetadata) { "EasyNoteSetup" } else { "EasyNoteSetup-custom" }
+    $OutputBaseFilename = if ($useOfficialMetadata) { "EasyNote-v$Version-win-$architecture-setup" } else { "EasyNoteSetup-custom-$architecture" }
+}
+
+$portableZipPath = Join-Path $root (Join-Path "publish" "EasyNote-v$Version-portable-win-$architecture.zip")
+$installerArchitectureDefines = if ($RuntimeIdentifier -eq "win-x64") {
+    @("/DArchitecturesAllowed=x64compatible", "/DArchitecturesInstallIn64BitMode=x64compatible")
+} else {
+    @("/DArchitecturesAllowed=x86compatible", "/DArchitecturesInstallIn64BitMode=")
 }
 
 if ($useExistingPublishDir) {
@@ -58,14 +68,22 @@ if ($useExistingPublishDir) {
 
     New-Item -ItemType Directory -Path $publishDir -Force | Out-Null
 
-    Write-Host "Publishing $Configuration build for $runtimeIdentifier (self-contained)..."
+    Write-Host "Publishing $Configuration build for $RuntimeIdentifier (self-contained)..."
+    dotnet restore (Join-Path $root "EasyNote\EasyNote.csproj") -r $RuntimeIdentifier
+    if ($LASTEXITCODE -ne 0) {
+        throw "Restore failed with exit code $LASTEXITCODE"
+    }
+
     dotnet publish (Join-Path $root "EasyNote\EasyNote.csproj") `
         -c $Configuration `
-        -r $runtimeIdentifier `
+        -r $RuntimeIdentifier `
         --self-contained true `
         -p:PublishSingleFile=true `
         -p:IncludeNativeLibrariesForSelfExtract=true `
         -o $publishDir
+    if ($LASTEXITCODE -ne 0) {
+        throw "Publish failed with exit code $LASTEXITCODE"
+    }
 }
 
 if (Test-Path $portableDir) {
@@ -126,7 +144,7 @@ if ($shouldBuildInstaller) {
 
     Write-Host ""
     Write-Host "Building EXE package..."
-    & $iscc.Source "/DPublishDir=$publishDir" "/DMyAppVersion=$Version" "/DOutputBaseFilename=$OutputBaseFilename" $installerScript
+    & $iscc.Source "/DPublishDir=$publishDir" "/DMyAppVersion=$Version" "/DOutputBaseFilename=$OutputBaseFilename" @installerArchitectureDefines $installerScript
     if ($LASTEXITCODE -ne 0) {
         throw "Installer packaging failed with exit code $LASTEXITCODE"
     }

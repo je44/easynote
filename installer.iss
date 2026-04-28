@@ -16,6 +16,12 @@
 #ifndef OutputBaseFilename
   #define OutputBaseFilename "EasyNoteSetup"
 #endif
+#ifndef ArchitecturesAllowed
+  #define ArchitecturesAllowed "x64compatible"
+#endif
+#ifndef ArchitecturesInstallIn64BitMode
+  #define ArchitecturesInstallIn64BitMode "x64compatible"
+#endif
 
 [Setup]
 AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
@@ -33,8 +39,8 @@ PrivilegesRequired=lowest
 UsePreviousAppDir=no
 DisableDirPage=no
 AlwaysShowDirOnReadyPage=yes
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#ArchitecturesAllowed}
+ArchitecturesInstallIn64BitMode={#ArchitecturesInstallIn64BitMode}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

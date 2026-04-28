@@ -30,6 +30,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] private static extern int GetWindowLongPtr32(IntPtr hwnd, int index);
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern IntPtr GetWindowLongPtr64(IntPtr hwnd, int index);
     [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr hwnd, int index, int value);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW")] private static extern int SetWindowLongPtr32(IntPtr hwnd, int index, int value);
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern IntPtr SetWindowLongPtr64(IntPtr hwnd, int index, IntPtr value);
     [DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr hwnd, int id, uint mod, uint key);
     [DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr hwnd, int id);
@@ -463,7 +464,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
 
         SetWindowLong(_hwnd, GWL_EXSTYLE, GetWindowLong(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-        SetWindowLongPtr64(_hwnd, GWLP_HWNDPARENT, desktop);
+        SetWindowLongPtr(_hwnd, GWLP_HWNDPARENT, desktop);
         SetWindowPos(_hwnd, HWND_TOP, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
         var curStyle = GetWindowLong(_hwnd, GWL_STYLE);
@@ -482,7 +483,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             LogWindowEvent("EnsureInteractiveMode.Skip", "HwndZero=true");
             return;
         }
-        SetWindowLongPtr64(_hwnd, GWLP_HWNDPARENT, IntPtr.Zero);
+        SetWindowLongPtr(_hwnd, GWLP_HWNDPARENT, IntPtr.Zero);
         SetWindowLong(_hwnd, GWL_EXSTYLE, _originalExStyle | WS_EX_TOOLWINDOW);
         // Temporary topmost lifts the window out of Show Desktop; the next call restores normal z-order.
         SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
@@ -1656,6 +1657,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private static IntPtr GetWindowLongPtr(IntPtr hwnd, int index)
         => IntPtr.Size == 8 ? GetWindowLongPtr64(hwnd, index) : new IntPtr(GetWindowLongPtr32(hwnd, index));
+
+    private static IntPtr SetWindowLongPtr(IntPtr hwnd, int index, IntPtr value)
+        => IntPtr.Size == 8 ? SetWindowLongPtr64(hwnd, index, value) : new IntPtr(SetWindowLongPtr32(hwnd, index, value.ToInt32()));
 
     private void LogWindowEvent(string eventName, string? extra = null)
     {
