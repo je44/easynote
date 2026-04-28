@@ -279,17 +279,30 @@ public partial class App : System.Windows.Application
                 Passed = hiddenPassed && _mainWindow.IsVisible,
                 Details = $"hiddenPassed={hiddenPassed}, visibleAfterShow={_mainWindow.IsVisible}"
             });
+            _mainWindow.CompleteDeferredDesktopReentryForAutomation();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
 
             _mainWindow.HideWindow();
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             OnTrayShow(this, new RoutedEventArgs());
+            await Task.Delay(900);
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "tray-show",
-                Passed = _mainWindow.IsVisible && _mainWindow.IsTopLevelWindowForAutomation() && !_mainWindow.IsTopmostWindowForAutomation(),
-                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}, topLevel={_mainWindow.IsTopLevelWindowForAutomation()}, topMost={_mainWindow.IsTopmostWindowForAutomation()}"
+                Passed = _mainWindow.IsVisible && _mainWindow.IsDesktopHostedWindowForAutomation() && !_mainWindow.IsTopmostWindowForAutomation(),
+                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}, desktopHosted={_mainWindow.IsDesktopHostedWindowForAutomation()}, topMost={_mainWindow.IsTopmostWindowForAutomation()}"
             });
+            await Task.Delay(450);
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            report.Checks.Add(new SelfTestCheck
+            {
+                Name = "tray-show-stays-desktop-hosted",
+                Passed = _mainWindow.IsVisible && _mainWindow.IsDesktopHostedWindowForAutomation() && !_mainWindow.IsTopmostWindowForAutomation(),
+                Details = $"visible={_mainWindow.IsVisible}, desktopHosted={_mainWindow.IsDesktopHostedWindowForAutomation()}, topMost={_mainWindow.IsTopmostWindowForAutomation()}"
+            });
+            _mainWindow.CompleteDeferredDesktopReentryForAutomation();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
 
             var hotkeyTriggered = _mainWindow.TriggerHotkeyForAutomation();
             await Task.Delay(200);
@@ -302,6 +315,8 @@ public partial class App : System.Windows.Application
                 Passed = hotkeyTriggered && hotkeyHidden && _mainWindow.IsVisible,
                 Details = $"postMessage={hotkeyTriggered}, hiddenAfterHotkey={hotkeyHidden}, visibleAfterSecondHotkey={_mainWindow.IsVisible}"
             });
+            _mainWindow.CompleteDeferredDesktopReentryForAutomation();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
 
             var originalTop = _mainWindow.Top;
             _mainWindow.DockToTopRight();
@@ -316,13 +331,16 @@ public partial class App : System.Windows.Application
 
             var trayDockTopBefore = _mainWindow.Top;
             OnTrayDock(this, new RoutedEventArgs());
+            await Task.Delay(900);
             await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "tray-dock",
-                Passed = _mainWindow.IsVisible && _mainWindow.Top <= trayDockTopBefore && !_mainWindow.IsTopmostWindowForAutomation(),
-                Details = $"visible={_mainWindow.IsVisible}, topMost={_mainWindow.IsTopmostWindowForAutomation()}, topBefore={trayDockTopBefore:0.##}, topAfter={_mainWindow.Top:0.##}"
+                Passed = _mainWindow.IsVisible && _mainWindow.Top <= trayDockTopBefore && _mainWindow.IsDesktopHostedWindowForAutomation() && !_mainWindow.IsTopmostWindowForAutomation(),
+                Details = $"visible={_mainWindow.IsVisible}, desktopHosted={_mainWindow.IsDesktopHostedWindowForAutomation()}, topMost={_mainWindow.IsTopmostWindowForAutomation()}, topBefore={trayDockTopBefore:0.##}, topAfter={_mainWindow.Top:0.##}"
             });
+            _mainWindow.CompleteDeferredDesktopReentryForAutomation();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
 
             _mainWindow.OpacityPercent = 61;
             _mainWindow.Left = 321;

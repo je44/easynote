@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +18,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private const double DebugMinimumWindowHeight = 552;
     private const double TopRightDockMargin = 20;
+    private static readonly TimeSpan ExternalWindowDesktopReentryDelay = TimeSpan.FromMilliseconds(200);
+    private static readonly TimeSpan TrayRestoreDesktopReentryDelay = TimeSpan.FromMilliseconds(80);
 
     #region Win32
 
@@ -34,6 +37,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     [DllImport("user32.dll")] private static extern uint GetDoubleClickTime();
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hmon, ref MonitorInfo info);
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(IntPtr hwnd, StringBuilder className, int maxCount);
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -81,6 +87,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private const uint SWP_SHOWWINDOW = 0x0040;
     private const uint SWP_NOOWNERZORDER = 0x0200;
     private const uint SWP_NOSENDCHANGING = 0x0400;
+    private static readonly IntPtr HWND_TOP = new(0);
     private static readonly IntPtr HWND_BOTTOM = new(1);
     private static readonly IntPtr HWND_TOPMOST = new(-1);
     private static readonly IntPtr HWND_NOTOPMOST = new(-2);
@@ -93,6 +100,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private const int SC_MINIMIZE = 0xF020;
     private const int WM_WINDOWPOSCHANGING = 0x0046;
     private const int WM_EXITSIZEMOVE = 0x0232;
+    private const uint GA_ROOT = 2;
 
     #endregion
 
@@ -103,6 +111,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private readonly DispatcherTimer _deleteHoldTimer;
     private readonly DispatcherTimer _actionToggleTimer;
+    private readonly DispatcherTimer _desktopReentryTimer;
     private TodoItem? _pendingDeleteItem;
     private TodoItem? _pressedTodoItem;
     private TodoItem? _pendingActionToggleItem;
@@ -118,6 +127,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private int _originalExStyle;
     private bool _hiddenByUser;
     private bool _pendingDesktopReenterAfterResize;
+    private bool _reenterDesktopOnNextDeactivation;
+    private bool _desktopReentryRequiresExternalForeground;
     private bool _isSettingsOpen;
     private bool _isNightTheme;
     private bool _isDraftOpen;
@@ -148,8 +159,22 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
             LogWindowEvent("IsVisibleChanged", $"NewValue={e.NewValue}");
         };
-        Activated += (_, _) => LogWindowEvent("Activated");
-        Deactivated += (_, _) => LogWindowEvent("Deactivated");
+        Activated += (_, _) =>
+        {
+            LogWindowEvent("Activated");
+            if (_desktopReentryRequiresExternalForeground)
+            {
+                _desktopReentryTimer?.Stop();
+            }
+        };
+        Deactivated += (_, _) =>
+        {
+            LogWindowEvent("Deactivated");
+            if (_reenterDesktopOnNextDeactivation && !_hiddenByUser && IsVisible)
+            {
+                ReenterDesktopModeSoon(ExternalWindowDesktopReentryDelay, requireExternalForeground: true);
+            }
+        };
         LocationChanged += (_, _) => LogWindowEvent("LocationChanged");
         SizeChanged += (_, e) => LogWindowEvent("SizeChanged", $"WidthChanged={e.WidthChanged},HeightChanged={e.HeightChanged}");
 
@@ -157,6 +182,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         _deleteHoldTimer.Tick += DeleteHoldTimer_Tick;
         _actionToggleTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(GetDoubleClickTime() + 20) };
         _actionToggleTimer.Tick += ActionToggleTimer_Tick;
+        _desktopReentryTimer = new DispatcherTimer { Interval = ExternalWindowDesktopReentryDelay };
+        _desktopReentryTimer.Tick += (_, _) =>
+        {
+            _desktopReentryTimer.Stop();
+            TryCompleteDeferredDesktopReentry();
+        };
         ApplyThemePalette();
         LogWindowEvent("Ctor");
     }
@@ -433,14 +464,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         SetWindowLong(_hwnd, GWL_EXSTYLE, GetWindowLong(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
         SetWindowLongPtr64(_hwnd, GWLP_HWNDPARENT, desktop);
-        SetWindowPos(_hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+        SetWindowPos(_hwnd, HWND_TOP, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
         var curStyle = GetWindowLong(_hwnd, GWL_STYLE);
         SetWindowLong(_hwnd, GWL_STYLE, curStyle | 0x00020000 | 0x00010000);
 
         var excluded = 1;
         DwmSetWindowAttribute(_hwnd, DWMWA_EXCLUDED_FROM_PEEK, ref excluded, sizeof(int));
-        LogWindowEvent("EnterDesktopMode.Done", $"DesktopHost=0x{desktop.ToInt64():X}");
+        LogWindowEvent("EnterDesktopMode.Done", $"DesktopHost=0x{desktop.ToInt64():X},DesktopZOrder=Top");
     }
 
     public void EnsureInteractiveMode()
@@ -453,7 +484,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
         SetWindowLongPtr64(_hwnd, GWLP_HWNDPARENT, IntPtr.Zero);
         SetWindowLong(_hwnd, GWL_EXSTYLE, _originalExStyle | WS_EX_TOOLWINDOW);
-        // 瞬时置顶只用于从“显示桌面”的桌面层里拉出窗口，随后立即恢复普通层级。
+        // Temporary topmost lifts the window out of Show Desktop; the next call restores normal z-order.
         SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOACTIVATE);
         Activate();
@@ -468,13 +499,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("BeginDrag.Start");
         try { DragMove(); } catch { }
         PersistWindowPlacement("BeginDrag");
-        // 不立即重新嵌入，等用户下次与窗口交互时再嵌入，避免被 WorkerW 压住
         LogWindowEvent("BeginDrag.Done");
     }
 
     public void HideWindow()
     {
         LogWindowEvent("HideWindow.Before");
+        _desktopReentryTimer.Stop();
+        _desktopReentryRequiresExternalForeground = false;
+        _reenterDesktopOnNextDeactivation = false;
         _hiddenByUser = true;
         PersistWindowPlacement("HideWindow");
         Hide();
@@ -484,20 +517,26 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public void ShowWindow()
     {
         LogWindowEvent("ShowWindow.Before");
+        _desktopReentryTimer.Stop();
+        _desktopReentryRequiresExternalForeground = false;
         _hiddenByUser = false;
         Show();
         EnsureInteractiveMode();
+        ReenterDesktopModeSoon(TrayRestoreDesktopReentryDelay);
         LogWindowEvent("ShowWindow.After");
     }
 
     public void DockToTopRight()
     {
         LogWindowEvent("DockToTopRight.Start");
+        _desktopReentryTimer.Stop();
+        _desktopReentryRequiresExternalForeground = false;
         EnsureInteractiveMode();
         if (!ApplyTopRightPlacement())
             return;
 
         PersistWindowPlacement("DockToTopRight");
+        ReenterDesktopModeSoon(TrayRestoreDesktopReentryDelay);
         LogWindowEvent("DockToTopRight.Done");
     }
 
@@ -527,10 +566,76 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         LogWindowEvent("PersistWindowPlacement", $"Reason={reason},Saved={saved}");
     }
 
-    private void ReenterDesktopModeSoon()
+    private void ReenterDesktopModeSoon(TimeSpan? delay = null, bool requireExternalForeground = false)
     {
-        LogWindowEvent("ReenterDesktopModeSoon.Schedule");
+        _desktopReentryTimer.Stop();
+        _desktopReentryRequiresExternalForeground = requireExternalForeground;
+        if (!requireExternalForeground)
+        {
+            _reenterDesktopOnNextDeactivation = false;
+        }
+
+        if (delay is { } requestedDelay && requestedDelay > TimeSpan.Zero)
+        {
+            _desktopReentryTimer.Interval = requestedDelay;
+            _desktopReentryTimer.Start();
+            LogWindowEvent("ReenterDesktopModeSoon.Schedule", $"DelayMs={requestedDelay.TotalMilliseconds:0},RequireExternalForeground={requireExternalForeground}");
+            return;
+        }
+
+        LogWindowEvent("ReenterDesktopModeSoon.Schedule", $"DelayMs=0,RequireExternalForeground={requireExternalForeground}");
         Dispatcher.BeginInvoke(EnterDesktopMode, DispatcherPriority.ApplicationIdle);
+    }
+
+    private void TryCompleteDeferredDesktopReentry()
+    {
+        if (_desktopReentryRequiresExternalForeground && !IsExternalForegroundWindow(out var foregroundDetails))
+        {
+            _desktopReentryRequiresExternalForeground = false;
+            LogWindowEvent("ReenterDesktopModeSoon.Defer", foregroundDetails);
+            return;
+        }
+
+        _desktopReentryRequiresExternalForeground = false;
+        _reenterDesktopOnNextDeactivation = false;
+        EnterDesktopMode();
+    }
+
+    private bool IsExternalForegroundWindow(out string details)
+    {
+        var foreground = GetForegroundWindow();
+        var root = foreground == IntPtr.Zero ? IntPtr.Zero : GetAncestor(foreground, GA_ROOT);
+        if (root == IntPtr.Zero)
+            root = foreground;
+
+        var foregroundClass = GetWindowClassName(foreground);
+        var rootClass = GetWindowClassName(root);
+        details = $"Foreground=0x{foreground.ToInt64():X},ForegroundClass={foregroundClass},Root=0x{root.ToInt64():X},RootClass={rootClass}";
+
+        if (foreground == IntPtr.Zero || foreground == _hwnd || root == _hwnd)
+            return false;
+
+        return !IsShellWindowClass(foregroundClass) && !IsShellWindowClass(rootClass);
+    }
+
+    private static bool IsShellWindowClass(string className)
+        => className is "Progman"
+            or "WorkerW"
+            or "SHELLDLL_DefView"
+            or "SysListView32"
+            or "Shell_TrayWnd"
+            or "NotifyIconOverflowWindow"
+            or "DV2ControlHost"
+            or "#32768";
+
+    private static string GetWindowClassName(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero)
+            return string.Empty;
+
+        var buffer = new StringBuilder(256);
+        var length = GetClassName(hwnd, buffer, buffer.Capacity);
+        return length > 0 ? buffer.ToString() : string.Empty;
     }
 
     private void LoadTodos()
@@ -1382,8 +1487,25 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     internal bool IsTopLevelWindowForAutomation()
         => _hwnd != IntPtr.Zero && GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT) == IntPtr.Zero;
 
+    internal bool IsDesktopHostedWindowForAutomation()
+        => _hwnd != IntPtr.Zero && GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT) != IntPtr.Zero;
+
     internal bool IsTopmostWindowForAutomation()
         => _hwnd != IntPtr.Zero && (GetWindowLong(_hwnd, GWL_EXSTYLE) & 0x00000008) != 0;
+
+    internal void CompleteDeferredDesktopReentryForAutomation()
+    {
+        _desktopReentryTimer.Stop();
+        _desktopReentryRequiresExternalForeground = false;
+        _reenterDesktopOnNextDeactivation = false;
+        ReenterDesktopModeSoon();
+    }
+
+    internal void ScheduleExternalForegroundDesktopReentryForAutomation()
+    {
+        _reenterDesktopOnNextDeactivation = true;
+        ReenterDesktopModeSoon(ExternalWindowDesktopReentryDelay, requireExternalForeground: true);
+    }
 
     private void ResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
