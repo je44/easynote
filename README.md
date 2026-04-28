@@ -11,6 +11,20 @@ It does not require WebView2.
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
 
+## Install
+
+请到发布页面下载对应的安装包：[Release page](https://github.com/je44/easynote/releases)
+
+Go to the [Release page](https://github.com/je44/easynote/releases) to download the corresponding package.
+
+Supports Windows x64 and x86.
+
+### How should I choose a release?
+
+| Version | Feature | Link |
+| --- | --- | --- |
+| Stable | Official release, suitable for daily use. | [Release](https://github.com/je44/easynote/releases/latest) |
+
 ## Features
 
 - Desktop-attached note board UI
