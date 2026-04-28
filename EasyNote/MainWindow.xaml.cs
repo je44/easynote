@@ -82,6 +82,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private const uint SWP_NOOWNERZORDER = 0x0200;
     private const uint SWP_NOSENDCHANGING = 0x0400;
     private static readonly IntPtr HWND_BOTTOM = new(1);
+    private static readonly IntPtr HWND_TOPMOST = new(-1);
+    private static readonly IntPtr HWND_NOTOPMOST = new(-2);
     private const int DWMWA_EXCLUDED_FROM_PEEK = 12;
     private const int HOTKEY_SHOW = 1;
     private const uint MOD_CTRL = 0x0002;
@@ -451,11 +453,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
         SetWindowLongPtr64(_hwnd, GWLP_HWNDPARENT, IntPtr.Zero);
         SetWindowLong(_hwnd, GWL_EXSTYLE, _originalExStyle | WS_EX_TOOLWINDOW);
-        // 直接 TOPMOST，防止脱离桌面嵌入瞬间被 WorkerW 遮住
-        SetWindowPos(_hwnd, new IntPtr(-1), 0, 0, 0, 0,
+        // 瞬时置顶只用于从“显示桌面”的桌面层里拉出窗口，随后立即恢复普通层级。
+        SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOACTIVATE);
         Activate();
         Focus();
+        SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
         LogWindowEvent("EnsureInteractiveMode.Done");
     }
 
@@ -1377,6 +1381,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     internal bool IsTopLevelWindowForAutomation()
         => _hwnd != IntPtr.Zero && GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT) == IntPtr.Zero;
+
+    internal bool IsTopmostWindowForAutomation()
+        => _hwnd != IntPtr.Zero && (GetWindowLong(_hwnd, GWL_EXSTYLE) & 0x00000008) != 0;
 
     private void ResizeGrip_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {

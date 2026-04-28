@@ -287,8 +287,8 @@ public partial class App : System.Windows.Application
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "tray-show",
-                Passed = _mainWindow.IsVisible && _mainWindow.IsTopLevelWindowForAutomation(),
-                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}, topLevel={_mainWindow.IsTopLevelWindowForAutomation()}"
+                Passed = _mainWindow.IsVisible && _mainWindow.IsTopLevelWindowForAutomation() && !_mainWindow.IsTopmostWindowForAutomation(),
+                Details = $"visibleAfterTrayShow={_mainWindow.IsVisible}, topLevel={_mainWindow.IsTopLevelWindowForAutomation()}, topMost={_mainWindow.IsTopmostWindowForAutomation()}"
             });
 
             var hotkeyTriggered = _mainWindow.TriggerHotkeyForAutomation();
@@ -320,8 +320,8 @@ public partial class App : System.Windows.Application
             report.Checks.Add(new SelfTestCheck
             {
                 Name = "tray-dock",
-                Passed = _mainWindow.IsVisible && _mainWindow.Top <= trayDockTopBefore,
-                Details = $"visible={_mainWindow.IsVisible}, topBefore={trayDockTopBefore:0.##}, topAfter={_mainWindow.Top:0.##}"
+                Passed = _mainWindow.IsVisible && _mainWindow.Top <= trayDockTopBefore && !_mainWindow.IsTopmostWindowForAutomation(),
+                Details = $"visible={_mainWindow.IsVisible}, topMost={_mainWindow.IsTopmostWindowForAutomation()}, topBefore={trayDockTopBefore:0.##}, topAfter={_mainWindow.Top:0.##}"
             });
 
             _mainWindow.OpacityPercent = 61;
