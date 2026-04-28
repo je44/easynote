@@ -11,6 +11,18 @@ WebView2 は不要です。
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
 
+## インストール
+
+リリースページから対応するパッケージをダウンロードしてください：[Release page](https://github.com/je44/easynote/releases)
+
+Windows x64 / x86 に対応しています。
+
+### どのリリースを選べばよいですか？
+
+| バージョン | 特徴 | リンク |
+| --- | --- | --- |
+| Stable | 正式版。日常利用に適しています。 | [Release](https://github.com/je44/easynote/releases/latest) |
+
 ## 主な機能
 
 - デスクトップ常駐型のノート UI

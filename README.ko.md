@@ -11,6 +11,18 @@ WebView2는 필요하지 않습니다.
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
 
+## 설치
+
+릴리스 페이지에서 알맞은 패키지를 다운로드하세요: [Release page](https://github.com/je44/easynote/releases)
+
+Windows x64 및 x86을 지원합니다.
+
+### 어떤 릴리스를 선택해야 하나요?
+
+| 버전 | 특징 | 링크 |
+| --- | --- | --- |
+| Stable | 공식 릴리스로, 일상적인 사용에 적합합니다. | [Release](https://github.com/je44/easynote/releases/latest) |
+
 ## 주요 기능
 
 - 데스크톱 밀착형 노트 UI

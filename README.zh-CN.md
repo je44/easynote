@@ -10,6 +10,18 @@ EasyNote 是一个面向 Windows 的轻量桌面便签 / 待办工具。
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote 预览图" width="340" />
 
+## 安装
+
+请到发布页面下载对应的安装包：[Release page](https://github.com/je44/easynote/releases)
+
+支持 Windows x64 和 x86。
+
+### 我应该选择哪个版本？
+
+| 版本 | 特点 | 链接 |
+| --- | --- | --- |
+| Stable | 正式版，适合日常使用。 | [Release](https://github.com/je44/easynote/releases/latest) |
+
 ## 功能
 
 - 桌面贴靠式便签界面
