@@ -5,19 +5,18 @@
 EasyNote is a lightweight desktop sticky-note and todo app for Windows.
 It is designed to stay close to the desktop and provide a quick place to
 capture tasks with tray controls, a global hotkey, and local persistence.
-It does not require WebView2.
 
 ## Source Code Notice
 
-This `main` branch is the original open-source code for EasyNote. It is meant
-for people who want to read, change, and continuously build their own version
-of EasyNote.
+This `main` branch publishes the original EasyNote source code. It is intended
+for personal developers, learners, and anyone who wants to shape EasyNote into
+their own preferred version.
 
-Because this branch follows the source code directly, it may include unfinished
-or unstable changes. It is not recommended as the daily-use version.
+This branch is a source-code starting point, not the recommended daily-use
+download. It may include unfinished or unstable changes as the project evolves.
 
-If you only want to use EasyNote without doing personal development, go to the
-[Install](#install) section and download the latest release version.
+If you only want to use EasyNote without modifying it, go to the
+[Install](#install) section and download the release version.
 
 ## Preview
 
@@ -25,7 +24,8 @@ If you only want to use EasyNote without doing personal development, go to the
 
 ## Install
 
-Go to the [Release page](https://github.com/je44/easynote/releases) to download the corresponding package.
+Go to the [Release page](https://github.com/je44/easynote/releases) to download
+the daily-use version.
 
 Supports Windows x64 and x86.
 
@@ -98,7 +98,6 @@ Portable mode behavior:
 - extract `publish\EasyNote-portable-win-x64.zip`
 - run `EasyNote.exe`
 - data, window state, and logs are stored under the local `data\` folder
-- WebView2 runtime is not required
 
 ## Data Location
 

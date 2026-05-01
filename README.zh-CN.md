@@ -3,14 +3,13 @@
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 EasyNote 是一个面向 Windows 的轻量桌面便签 / 待办工具。
-它以贴近桌面的方式常驻使用，支持托盘控制、全局快捷键和本地数据持久化，
-不依赖 WebView2。
+它以贴近桌面的方式常驻使用，支持托盘控制、全局快捷键和本地数据持久化。
 
 ## 项目说明
 
-`main` 分支是 EasyNote 的原始开源代码，适合查看源码、学习实现方式，或持续构建成适合你自己的个人版本。
+`main` 分支公开 EasyNote 的原始源代码，适合个人开发者、学习者，以及希望把 EasyNote 持续构建成自己喜欢版本的人。
 
-由于这里跟随原始代码更新，可能包含不稳定内容，不建议直接作为日常使用版本。
+这是一个源代码起点，不是推荐的日常使用下载版本。随着项目更新，它可能包含未完成或不稳定的内容。
 
 如果你只是希望日常使用 EasyNote，不打算进行个人开发，建议阅读下方
 [安装](#安装) 部分并下载 release 版本。
@@ -94,7 +93,6 @@ dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test --self-test-outpu
 - 解压 `publish\EasyNote-portable-win-x64.zip`
 - 运行 `EasyNote.exe`
 - 数据、窗口状态、日志会保存到程序目录下的 `data\`
-- 不需要 WebView2 Runtime
 
 ## 数据目录
 
