@@ -26,6 +26,23 @@ Compared with `main`, this branch currently includes:
 - best-effort migration of existing AppData todos and window state into portable mode
 - release README preview imagery for the customized interface
 
+### Current Release Update
+
+This release refresh syncs the stable source that was validated through the
+local experimental workflow back into the `release` branch.
+
+- split the oversized `MainWindow` code-behind into focused partial classes for
+  automation, desktop hosting, helper routines, resize dragging, theme handling,
+  todo operations, UI events, and Win32 interop
+- kept the experimental workspace local-only through `.gitignore`, so future UI
+  and feature work can be verified in `EasyNote-Experiment` before source
+  backport
+- refined todo-item behavior and XAML wiring after the source split
+- added `PROJECT_ANALYSIS_REPORT.md` as the release-side source structure
+  reference for future maintainers
+- refreshed the downloadable Windows packages for x64 and x86, including both
+  installer EXE and portable ZIP variants
+
 Use this branch when you want the packaged Windows app with the personalized
 UI and workflow variant.
 
@@ -44,10 +61,14 @@ UI and workflow variant.
 
 Download the release build for Windows directly from GitHub Releases:
 
-- [Download EasyNote.exe](https://github.com/je44/easynote/releases/download/release-2026-04-26/EasyNote.exe)
+- [Windows x64 installer](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-win-x64-setup.exe)
+- [Windows x64 portable ZIP](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-portable-win-x64.zip)
+- [Windows x86 installer](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-win-x86-setup.exe)
+- [Windows x86 portable ZIP](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-portable-win-x86.zip)
 
-After downloading, run `EasyNote.exe` to start the app. This release build is
-published from the `release` branch.
+For installer builds, run the downloaded setup EXE. For portable builds, extract
+the ZIP and run `EasyNote.exe`. This release build is published from the
+`release` branch.
 
 ## Run From Source
 
@@ -86,9 +107,11 @@ Build installer and portable package:
 Default outputs:
 
 - publish folder: `publish\app`
-- portable folder: `publish\portable`
-- portable zip: `publish\EasyNote-portable-win-x64.zip`
-- installer: `installer\EasyNoteSetup.exe`
+- portable folders: `publish\portable-x64`, `publish\portable-x86`
+- portable zips: `publish\EasyNote-v1.0-portable-win-x64.zip`,
+  `publish\EasyNote-v1.0-portable-win-x86.zip`
+- installers: `installer\EasyNote-v1.0-win-x64-setup.exe`,
+  `installer\EasyNote-v1.0-win-x86-setup.exe`
 
 Build only the portable package:
 

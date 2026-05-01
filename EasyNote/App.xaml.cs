@@ -18,6 +18,7 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        LocalUserDataStore.EnsureInitialized();
         WindowEventLogger.Write("App", $"OnStartup | args={string.Join(' ', e.Args)} | log={WindowEventLogger.CurrentLogPath}");
 
         DispatcherUnhandledException += (_, args) =>
@@ -133,14 +134,14 @@ public partial class App : System.Windows.Application
         if (explicitOutput != null)
             return explicitOutput[prefix.Length..];
 
-        return System.IO.Path.Combine(AppPaths.AppDataDirectory, "self-test-report.json");
+        return System.IO.Path.Combine(LocalUserDataStore.DataDirectory, "self-test-report.json");
     }
 
     private async Task RunSelfTestAsync(string outputPath)
     {
         var report = new SelfTestReport();
-        var todosPath = System.IO.Path.Combine(AppPaths.AppDataDirectory, "todos.json");
-        var statePath = System.IO.Path.Combine(AppPaths.AppDataDirectory, "window-state.json");
+        var todosPath = LocalUserDataStore.TodoStatePath;
+        var statePath = LocalUserDataStore.WindowStatePath;
         var originalTodos = System.IO.File.Exists(todosPath) ? await System.IO.File.ReadAllTextAsync(todosPath) : null;
         var originalState = System.IO.File.Exists(statePath) ? await System.IO.File.ReadAllTextAsync(statePath) : null;
         var originalAutostart = IsAutostartEnabled();
@@ -149,6 +150,15 @@ public partial class App : System.Windows.Application
         {
             if (_mainWindow == null)
                 throw new InvalidOperationException("Main window not available for self-test.");
+
+            report.Checks.Add(new SelfTestCheck
+            {
+                Name = "local-user-data-store",
+                Passed = System.IO.Directory.Exists(LocalUserDataStore.DataDirectory)
+                    && System.IO.File.Exists(LocalUserDataStore.ManifestPath)
+                    && System.IO.File.Exists(LocalUserDataStore.TodoStatePath),
+                Details = $"dataDirectory={LocalUserDataStore.DataDirectory}, manifest={System.IO.File.Exists(LocalUserDataStore.ManifestPath)}, todos={System.IO.File.Exists(LocalUserDataStore.TodoStatePath)}"
+            });
 
             report.Checks.Add(new SelfTestCheck
             {

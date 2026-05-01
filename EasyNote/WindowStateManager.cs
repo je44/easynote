@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 
@@ -32,7 +30,7 @@ internal sealed class SavedWindowPlacement
 
 internal static class WindowStateManager
 {
-    private static readonly string StatePath = Path.Combine(AppPaths.AppDataDirectory, "window-state.json");
+    private static readonly string StatePath = LocalUserDataStore.WindowStatePath;
 
     private const double MaxWindowWidth = 800;
     private const double MaxWindowHeight = 1020;
@@ -55,9 +53,7 @@ internal static class WindowStateManager
 
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(StatePath)!);
-            var json = JsonSerializer.Serialize(new SavedWindowPlacement(x, y, width, height, opacityPercent, isNightTheme));
-            File.WriteAllText(StatePath, json);
+            LocalUserDataStore.WriteJson(StatePath, new SavedWindowPlacement(x, y, width, height, opacityPercent, isNightTheme));
             return true;
         }
         catch
@@ -105,10 +101,7 @@ internal static class WindowStateManager
     private static bool TryReadPlacement(out SavedWindowPlacement placement)
     {
         placement = default!;
-        if (!File.Exists(StatePath))
-            return false;
-
-        var state = JsonSerializer.Deserialize<SavedWindowPlacement>(File.ReadAllText(StatePath));
+        var state = LocalUserDataStore.ReadJson<SavedWindowPlacement>(StatePath);
         if (state == null)
             return false;
 
