@@ -3,6 +3,7 @@ publish/
 installer/
 EasyNote/bin/
 EasyNote/obj/
+EasyNote-Experiment/
 
 # Visual Studio / Rider
 .vs/

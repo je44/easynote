@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
@@ -149,8 +150,8 @@ public class TodoItem : INotifyPropertyChanged
         IsEditing
             ? string.Empty
             : CompletedAt is null
-                ? (Pinned ? $"已置顶 • {CreatedAt:M月d日}" : $"创建时间 {CreatedAt:M月d日}")
-                : $"完成时间 {CompletedAt.Value:M月d日}";
+                ? (Pinned ? FormatPinnedCreatedText(CreatedAt) : FormatCreatedText(CreatedAt))
+                : FormatCompletedText(CompletedAt.Value);
 
     [JsonIgnore]
     public double ActionSurfaceOffset => ActionOpen ? 50 : 0;
@@ -160,6 +161,45 @@ public class TodoItem : INotifyPropertyChanged
 
     [JsonIgnore]
     public double ActionButtonScale => ActionOpen ? 1 : 0.72;
+
+    private static string FormatCreatedText(DateTime date)
+    {
+        var culture = CultureInfo.CurrentUICulture;
+        return culture.TwoLetterISOLanguageName switch
+        {
+            "zh" => $"创建于 {FormatMonthDay(date, culture)}",
+            "ja" => $"作成 {FormatMonthDay(date, culture)}",
+            "ko" => $"생성 {FormatMonthDay(date, culture)}",
+            _ => $"Created on {FormatMonthDay(date, culture)}"
+        };
+    }
+
+    private static string FormatCompletedText(DateTime date)
+    {
+        var culture = CultureInfo.CurrentUICulture;
+        return culture.TwoLetterISOLanguageName switch
+        {
+            "zh" => $"完成于 {FormatMonthDay(date, culture)}",
+            "ja" => $"完了 {FormatMonthDay(date, culture)}",
+            "ko" => $"완료 {FormatMonthDay(date, culture)}",
+            _ => $"Completed on {FormatMonthDay(date, culture)}"
+        };
+    }
+
+    private static string FormatPinnedCreatedText(DateTime date)
+    {
+        var culture = CultureInfo.CurrentUICulture;
+        return culture.TwoLetterISOLanguageName switch
+        {
+            "zh" => $"已置顶 • 创建于 {FormatMonthDay(date, culture)}",
+            "ja" => $"固定済み • 作成 {FormatMonthDay(date, culture)}",
+            "ko" => $"고정됨 • 생성 {FormatMonthDay(date, culture)}",
+            _ => $"Pinned • Created on {FormatMonthDay(date, culture)}"
+        };
+    }
+
+    private static string FormatMonthDay(DateTime date, CultureInfo culture)
+        => date.ToString(culture.DateTimeFormat.MonthDayPattern, culture);
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {

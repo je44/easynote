@@ -43,8 +43,10 @@
         <SolidColorBrush x:Key="AccentBrush" Color="#668564" />
         <SolidColorBrush x:Key="AccentHoverBrush" Color="#73916E" />
         <SolidColorBrush x:Key="AccentPressedBrush" Color="#557252" />
-        <SolidColorBrush x:Key="HeaderIconHoverBrush" Color="#557252" />
-        <SolidColorBrush x:Key="HeaderIconPressedBrush" Color="#3F5D3E" />
+        <SolidColorBrush x:Key="HeaderIconHoverBrush" Color="#0B7A38" />
+        <SolidColorBrush x:Key="HeaderIconPressedBrush" Color="#053E20" />
+        <SolidColorBrush x:Key="PinIconHoverBrush" Color="#0B7A38" />
+        <SolidColorBrush x:Key="PinIconPressedBrush" Color="#053E20" />
         <SolidColorBrush x:Key="PinnedIconBrush" Color="#536E50" />
         <SolidColorBrush x:Key="PinnedSurfaceBrush" Color="#E9D89D" />
         <SolidColorBrush x:Key="PinnedBorderBrush" Color="#B59B3E" />
@@ -55,7 +57,7 @@
         <SolidColorBrush x:Key="ScrollThumbBrush" Color="#7A756B5C" />
 
         <DropShadowEffect x:Key="WindowSoftShadow"
-                          BlurRadius="12"
+                          BlurRadius="9.6"
                           Color="#12170F"
                           Direction="270"
                           Opacity="0.11"
@@ -67,19 +69,21 @@
                           Opacity="0.06"
                           ShadowDepth="1" />
         <PathGeometry x:Key="IconSettingsGeometry"
-                      Figures="M4 21L4 14 M4 10L4 3 M2 14L6 14 M12 21L12 12 M12 8L12 3 M10 8L14 8 M20 21L20 16 M20 12L20 3 M18 16L22 16" />
+                      Figures="M12 3.05C12.73 3.05 13.32 3.6 13.38 4.32L13.5 5.7C14.06 5.85 14.58 6.07 15.06 6.35L16.12 5.46C16.67 5 17.49 5.03 18 5.54L18.46 6C18.97 6.51 19 7.33 18.54 7.88L17.65 8.94C17.93 9.42 18.15 9.94 18.3 10.5L19.68 10.62C20.4 10.68 20.95 11.27 20.95 12C20.95 12.73 20.4 13.32 19.68 13.38L18.3 13.5C18.15 14.06 17.93 14.58 17.65 15.06L18.54 16.12C19 16.67 18.97 17.49 18.46 18L18 18.46C17.49 18.97 16.67 19 16.12 18.54L15.06 17.65C14.58 17.93 14.06 18.15 13.5 18.3L13.38 19.68C13.32 20.4 12.73 20.95 12 20.95C11.27 20.95 10.68 20.4 10.62 19.68L10.5 18.3C9.94 18.15 9.42 17.93 8.94 17.65L7.88 18.54C7.33 19 6.51 18.97 6 18.46L5.54 18C5.03 17.49 5 16.67 5.46 16.12L6.35 15.06C6.07 14.58 5.85 14.06 5.7 13.5L4.32 13.38C3.6 13.32 3.05 12.73 3.05 12C3.05 11.27 3.6 10.68 4.32 10.62L5.7 10.5C5.85 9.94 6.07 9.42 6.35 8.94L5.46 7.88C5 7.33 5.03 6.51 5.54 6L6 5.54C6.51 5.03 7.33 5 7.88 5.46L8.94 6.35C9.42 6.07 9.94 5.85 10.5 5.7L10.62 4.32C10.68 3.6 11.27 3.05 12 3.05Z M12 15.45A3.45 3.45 0 1 0 12 8.55A3.45 3.45 0 0 0 12 15.45Z" />
         <PathGeometry x:Key="IconHideGeometry"
-                      Figures="M5 12L19 12" />
+                      Figures="M5.1 12L18.9 12" />
         <PathGeometry x:Key="IconAddGeometry"
-                      Figures="M12 5L12 19 M5 12L19 12" />
+                      Figures="M12 4.7L12 19.3 M4.7 12L19.3 12" />
         <PathGeometry x:Key="IconTopGeometry"
-                      Figures="M12 19L12 5 M6 11L12 5L18 11 M5 19L19 19" />
+                      Figures="M21.66 8.83L15.14 2.32C14.97 2.15 14.74 2.07 14.52 2.07C14.29 2.07 14.07 2.15 13.9 2.32L9.64 6.58C9.31 6.55 8.99 6.53 8.66 6.53C6.73 6.53 4.79 7.16 3.2 8.44C2.79 8.76 2.76 9.37 3.13 9.74L7.93 14.54L2.24 20.23C2.17 20.3 2.12 20.39 2.11 20.49L2.02 21.47C2 21.72 2.2 21.93 2.44 21.93C2.46 21.93 2.47 21.93 2.48 21.93L3.47 21.84C3.57 21.83 3.66 21.79 3.73 21.72L9.42 16.03L14.23 20.83C14.4 21 14.63 21.08 14.85 21.08C15.11 21.08 15.36 20.97 15.54 20.75C17.03 18.9 17.65 16.57 17.39 14.32L21.65 10.07C22 9.73 22 9.18 21.66 8.83ZM16.05 12.98L15.4 13.63L15.5 14.54C15.6 15.43 15.53 16.32 15.29 17.17C15.14 17.68 14.95 18.15 14.7 18.61L5.35 9.27C5.7 9.09 6.05 8.93 6.42 8.8C7.14 8.55 7.89 8.43 8.66 8.43C8.92 8.43 9.17 8.44 9.43 8.47L10.34 8.57L14.52 4.39L19.59 9.45L16.05 12.98Z" />
         <PathGeometry x:Key="IconCheckGeometry"
-                      Figures="M5 12L10 17L20 7" />
+                      Figures="M7.9 12.3L10.65 15.05L16.2 9" />
         <PathGeometry x:Key="IconTrashGeometry"
-                      Figures="M3 6L21 6 M8 6L8 4L16 4L16 6 M6 6L7 21L17 21L18 6 M10 10L10 17 M14 10L14 17" />
+                      Figures="M4.7 6.5L19.3 6.5 M9.2 6.5L9.2 4.2L14.8 4.2L14.8 6.5 M7.3 6.5L8 20L16 20L16.7 6.5 M10.25 10.2L10.25 16.9 M13.75 10.2L13.75 16.9" />
         <PathGeometry x:Key="IconXGeometry"
-                      Figures="M7 7L17 17 M17 7L7 17" />
+                      Figures="M7.1 7.1L16.9 16.9 M16.9 7.1L7.1 16.9" />
+        <PathGeometry x:Key="IconUndoGeometry"
+                      Figures="M9.2 7L5.2 11L9.2 15 M5.2 11L14.6 11C17.45 11 19.75 13.3 19.75 16.15C19.75 17.4 19.3 18.55 18.55 19.45" />
 
         <Style x:Key="IconButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="38" />
@@ -103,7 +107,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3">
+                                CornerRadius="1">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -138,11 +142,12 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3">
-                            <Viewbox Width="15.5" Height="15.5">
-                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                CornerRadius="1">
+                            <Viewbox Width="18" Height="18">
+                                <Path x:Name="IconGlyph"
+                                      Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
                                       Stroke="{TemplateBinding Foreground}"
-                                      StrokeThickness="1.75"
+                                      StrokeThickness="1.5"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
                                       StrokeLineJoin="Round"
@@ -152,10 +157,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource HeaderIconHoverBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Stroke" Value="{DynamicResource HeaderIconHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource HeaderIconPressedBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Stroke" Value="{DynamicResource HeaderIconPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground" Value="{DynamicResource TextSubtleBrush}" />
@@ -196,10 +201,11 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="Transparent">
-                            <Viewbox Width="14" Height="14">
-                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                            <Viewbox Width="13.6" Height="13.6">
+                                <Path x:Name="IconGlyph"
+                                      Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
                                       Stroke="{TemplateBinding Foreground}"
-                                      StrokeThickness="1.8"
+                                      StrokeThickness="1.5"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
                                       StrokeLineJoin="Round"
@@ -209,10 +215,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Stroke" Value="{DynamicResource HeaderIconHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource AccentPressedBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Stroke" Value="{DynamicResource HeaderIconPressedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -253,9 +259,6 @@
                                 <Setter Property="FontSize" Value="19" />
                                 <Setter Property="FontWeight" Value="Bold" />
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
-                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -267,7 +270,7 @@
             <Setter Property="Height" Value="24" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
-            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderThickness" Value="1.5" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -275,21 +278,21 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Ellipse Width="14"
-                                     Height="14"
+                            <Ellipse Width="16"
+                                     Height="16"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
                                      Fill="Transparent"
                                      Stroke="{TemplateBinding BorderBrush}"
                                      StrokeThickness="{TemplateBinding BorderThickness}" />
-                            <Viewbox Width="10"
-                                     Height="10"
+                            <Viewbox Width="12"
+                                     Height="12"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center">
                                 <Path x:Name="DoneMark"
                                       Data="{StaticResource IconCheckGeometry}"
                                       Stroke="{TemplateBinding Foreground}"
-                                      StrokeThickness="2"
+                                      StrokeThickness="1.5"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
                                       StrokeLineJoin="Round"
@@ -327,23 +330,24 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="Transparent">
-                            <Viewbox Width="13" Height="13">
-                                <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Stroke="{TemplateBinding Foreground}"
-                                      StrokeThickness="1.8"
+                            <Viewbox Width="16" Height="16">
+                                <Path x:Name="IconGlyph"
+                                      Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stroke="Transparent"
+                                      StrokeThickness="1.5"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
                                       StrokeLineJoin="Round"
-                                      Fill="Transparent"
+                                      Fill="{TemplateBinding Foreground}"
                                       Stretch="Uniform" />
                             </Viewbox>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Fill" Value="{DynamicResource PinIconHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource AccentPressedBrush}" />
+                                <Setter TargetName="IconGlyph" Property="Fill" Value="{DynamicResource PinIconPressedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -371,15 +375,15 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3"
+                                CornerRadius="1"
                                 Padding="{TemplateBinding Padding}">
                             <StackPanel Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
-                                <Viewbox Width="13" Height="13" Margin="0,0,6,0">
+                                <Viewbox Width="14" Height="14" Margin="0,0,6,0">
                                     <Path Data="{Binding CommandParameter, RelativeSource={RelativeSource TemplatedParent}}"
                                           Stroke="{TemplateBinding Foreground}"
-                                          StrokeThickness="1.75"
+                                          StrokeThickness="1.5"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
                                           StrokeLineJoin="Round"
@@ -449,7 +453,7 @@
                         <Border Width="4"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Stretch"
-                                CornerRadius="2"
+                                CornerRadius="1"
                                 Background="{TemplateBinding Background}" />
                     </ControlTemplate>
                 </Setter.Value>
@@ -519,7 +523,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3"
+                                CornerRadius="1"
                                 Padding="{TemplateBinding Padding}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="0,4,0,0"
@@ -568,7 +572,7 @@
                             <Border Height="3"
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource SurfaceBrush}"
-                                    CornerRadius="1.5"
+                                    CornerRadius="1"
                                     SnapsToDevicePixels="True" />
                             <Track x:Name="PART_Track"
                                    VerticalAlignment="Center"
@@ -587,7 +591,7 @@
                                                         Margin="0,0,-7,0"
                                                         VerticalAlignment="Center"
                                                         Background="{DynamicResource AccentBrush}"
-                                                        CornerRadius="1.5,0,0,1.5"
+                                                        CornerRadius="1,0,0,1"
                                                         SnapsToDevicePixels="True" />
                                             </ControlTemplate>
                                         </RepeatButton.Template>
@@ -631,7 +635,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="3">
+                                CornerRadius="1">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -663,7 +667,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3">
+                                CornerRadius="1">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -707,16 +711,26 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Height="{TemplateBinding Height}"
+                        <Border x:Name="Root"
+                                Height="{TemplateBinding Height}"
                                 MinWidth="{TemplateBinding MinWidth}"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3"
-                                Padding="{TemplateBinding Padding}">
+                                CornerRadius="1"
+                                Padding="{TemplateBinding Padding}"
+                                Effect="{x:Null}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfaceHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfacePressedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -747,7 +761,7 @@
                         <Border Width="4"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Stretch"
-                                CornerRadius="2"
+                                CornerRadius="1"
                                 Background="{TemplateBinding Background}" />
                     </ControlTemplate>
                 </Setter.Value>
@@ -775,7 +789,7 @@
                             <Border Width="2"
                                     HorizontalAlignment="Center"
                                     Background="{DynamicResource ScrollTrackBrush}"
-                                    CornerRadius="999" />
+                                    CornerRadius="1" />
                             <Track x:Name="PART_Track"
                                    Focusable="False"
                                    IsDirectionReversed="True"
@@ -872,7 +886,7 @@
     </Window.Resources>
 
     <Border Margin="7"
-            CornerRadius="3"
+            CornerRadius="1"
             BorderThickness="0"
             BorderBrush="{DynamicResource ChromeBorderBrush}"
             Background="{DynamicResource ChromeBackgroundBrush}"
@@ -921,13 +935,16 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Style="{StaticResource AddTodoIconButtonStyle}"
+                            AutomationProperties.Name="新增待办"
                             Visibility="{Binding IsPendingView, Converter={StaticResource BoolToVisibilityConverter}}"
                             Click="AddTodoToggleButton_Click" />
                     <Button Style="{StaticResource SettingsIconButtonStyle}"
+                            AutomationProperties.Name="设置"
                             Visibility="{Binding IsPendingView, Converter={StaticResource BoolToVisibilityConverter}}"
                             Click="SettingsButton_Click" />
                     <Button Style="{StaticResource HideButtonStyle}"
                             Margin="0"
+                            AutomationProperties.Name="隐藏便签"
                             Click="HideButton_Click" />
                 </StackPanel>
             </Grid>
@@ -942,7 +959,7 @@
                 <Border Grid.Row="0"
                         Padding="14"
                         Margin="0,0,0,12"
-                        CornerRadius="3"
+                        CornerRadius="1"
                         Background="{DynamicResource SurfaceBrush}"
                         BorderBrush="{DynamicResource ChromeBorderBrush}"
                         BorderThickness="0"
@@ -960,12 +977,15 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Text="设置" />
                             <Button Grid.Column="1"
                                     Style="{StaticResource CompactIconButtonStyle}"
+                                    VerticalAlignment="Center"
                                     ToolTip="关闭设置"
+                                    AutomationProperties.Name="关闭设置"
                                     CommandParameter="{StaticResource IconXGeometry}"
                                     Click="SettingsCloseButton_Click" />
                         </Grid>
@@ -996,9 +1016,11 @@
 
                         <Button Grid.Row="2"
                                 Margin="0,14,0,0"
-                                Height="30"
+                                Height="40"
+                                Padding="0,1,0,0"
                                 Background="{DynamicResource SurfaceStrongBrush}"
                                 BorderBrush="{DynamicResource ChromeBorderBrush}"
+                                Effect="{x:Null}"
                                 Style="{StaticResource InlineActionButtonStyle}"
                                 Content="{Binding ThemeToggleText}"
                                 Click="ThemeToggleButton_Click" />
@@ -1009,7 +1031,7 @@
                         x:Name="DraftPanel"
                         Padding="14"
                         Margin="0,0,0,12"
-                        CornerRadius="3"
+                        CornerRadius="1"
                         Background="{DynamicResource SurfaceBrush}"
                         BorderBrush="{DynamicResource ChromeBorderBrush}"
                         BorderThickness="0"
@@ -1035,7 +1057,7 @@
                                     Background="{DynamicResource SurfaceStrongBrush}"
                                     BorderBrush="{DynamicResource ChromeBorderBrush}"
                                     BorderThickness="0"
-                                    CornerRadius="3"
+                                    CornerRadius="1"
                                     Padding="14,10">
                                 <Grid>
                                      <TextBox x:Name="DraftInputTextBox"
@@ -1144,7 +1166,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type local:TodoItem}">
                                 <Border x:Name="CardRoot"
-                                        CornerRadius="3"
+                                        CornerRadius="1"
                                         Background="Transparent"
                                         BorderBrush="{DynamicResource ChromeBorderBrush}"
                                         BorderThickness="0"
@@ -1163,6 +1185,7 @@
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 Panel.ZIndex="4"
+                                                AutomationProperties.Name="完成待办"
                                                 Opacity="{Binding ActionButtonOpacity}"
                                                 RenderTransformOrigin="0.5,0.5"
                                                 Tag="{Binding}"
@@ -1176,7 +1199,7 @@
                                         </Button>
 
                                         <Border x:Name="CardSurface"
-                                                CornerRadius="3"
+                                                CornerRadius="1"
                                                 Background="{DynamicResource SurfaceBrush}"
                                                 BorderBrush="{DynamicResource ChromeBorderBrush}"
                                                 BorderThickness="0"
@@ -1188,7 +1211,7 @@
                                             <Grid x:Name="ContentLayer">
                                                 <Border x:Name="CardHoverOverlay"
                                                         Background="{DynamicResource CardSelectedSurfaceBrush}"
-                                                        CornerRadius="3"
+                                                        CornerRadius="1"
                                                         Opacity="0"
                                                         IsHitTestVisible="False" />
 
@@ -1219,7 +1242,7 @@
                                                            HorizontalAlignment="Right"
                                                            VerticalAlignment="Bottom"
                                                            Foreground="{DynamicResource NoteTextSubtleBrush}"
-                                                           FontSize="9"
+                                                           FontSize="12"
                                                            TextAlignment="Right"
                                                            Text="{Binding SecondaryText}" />
 
@@ -1229,6 +1252,7 @@
                                                         VerticalAlignment="Top"
                                                         Panel.ZIndex="6"
                                                         Style="{StaticResource PinBadgeButtonStyle}"
+                                                        AutomationProperties.Name="置顶"
                                                         Tag="{Binding}"
                                                         Click="PinButton_Click"
                                                         Visibility="{Binding DataContext.IsPendingView, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -1250,9 +1274,9 @@
                                         <Border x:Name="DeleteOverlay"
                                                 Panel.ZIndex="20"
                                                 Background="{DynamicResource OverlayBrush}"
-                                                BorderBrush="{DynamicResource ChromeBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="3"
+                                                BorderBrush="Transparent"
+                                                BorderThickness="0"
+                                                CornerRadius="1"
                                                 Visibility="Collapsed">
                                             <StackPanel VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
@@ -1276,7 +1300,7 @@
                                                     <Button Style="{StaticResource InlineIconActionButtonStyle}"
                                                             Background="{DynamicResource SurfaceStrongBrush}"
                                                             BorderBrush="Transparent"
-                                                            CommandParameter="{StaticResource IconXGeometry}"
+                                                            CommandParameter="{StaticResource IconUndoGeometry}"
                                                             Tag="{Binding}"
                                                             Click="CancelDeleteButton_Click"
                                                             Content="撤销" />
