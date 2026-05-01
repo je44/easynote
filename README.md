@@ -7,6 +7,27 @@ It is designed to stay close to the desktop and provide a quick place to
 capture tasks with tray controls, a global hotkey, and local persistence.
 It does not require WebView2.
 
+## Source Code Notice
+
+This `main` branch is the original open-source code for EasyNote. It is meant
+for people who want to read, change, and continuously build their own version
+of EasyNote.
+
+Because this branch follows the source code directly, it may include unfinished
+or unstable changes. It is not recommended as the daily-use version.
+
+If you only want to use EasyNote without doing personal development, go to the
+[Install](#install) section and download the latest release version.
+
+## 项目说明
+
+`main` 分支是 EasyNote 的原始开源代码，适合查看源码、学习实现方式，或持续构建成适合你自己的个人版本。
+
+由于这里跟随原始代码更新，可能包含不稳定内容，不建议直接作为日常使用版本。
+
+如果你只是希望日常使用 EasyNote，不打算进行个人开发，建议阅读下方
+[Install](#install) 部分并下载 release 版本。
+
 ## Preview
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
