@@ -19,22 +19,11 @@ or unstable changes. It is not recommended as the daily-use version.
 If you only want to use EasyNote without doing personal development, go to the
 [Install](#install) section and download the latest release version.
 
-## 项目说明
-
-`main` 分支是 EasyNote 的原始开源代码，适合查看源码、学习实现方式，或持续构建成适合你自己的个人版本。
-
-由于这里跟随原始代码更新，可能包含不稳定内容，不建议直接作为日常使用版本。
-
-如果你只是希望日常使用 EasyNote，不打算进行个人开发，建议阅读下方
-[Install](#install) 部分并下载 release 版本。
-
 ## Preview
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="340" />
 
 ## Install
-
-请到发布页面下载对应的安装包：[Release page](https://github.com/je44/easynote/releases)
 
 Go to the [Release page](https://github.com/je44/easynote/releases) to download the corresponding package.
 
