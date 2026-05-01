@@ -5,21 +5,18 @@
 EasyNote is a lightweight desktop sticky-note and todo app for Windows.
 It is designed to stay close to the desktop and provide a quick place to
 capture tasks with tray controls, a global hotkey, and local persistence.
-It does not require WebView2.
 
 ## Preview
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="409" />
 
-## Release Version
+## About This Version
 
-This branch is the recommended version for daily use. Download the installer or
-portable package from the [Install](#install) section if you want to use
-EasyNote directly without personal development work.
+This `release` branch introduces EasyNote for everyday users. It focuses on
+what the app does, what changed recently, and how to download and install it.
 
-The `main` branch is kept as the original open-source code for people who want
-to read, change, or create their own version of EasyNote. For normal use,
-choose the release download instead.
+If you want to read or customize the original source code, use the `main`
+branch. If you just want to use EasyNote, download the release package below.
 
 ## Features
 
@@ -32,6 +29,15 @@ choose the release download instead.
 - Window position, size, and opacity persistence
 - Optional portable mode with local `data/` storage
 
+## Recent Updates
+
+- Improved the daily note and todo experience.
+- Refined add, edit, delete, archive, and restore flows.
+- Improved window display, saved position, and size behavior.
+- Refined theme display and interface details.
+- Improved local data saving so notes and todos remain available next time.
+- Added Windows x64 and x86 downloads, with installer and portable options.
+
 ## Install
 
 Download EasyNote for Windows directly from GitHub Releases:
@@ -42,8 +48,7 @@ Download EasyNote for Windows directly from GitHub Releases:
 - [Windows x86 portable ZIP](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-portable-win-x86.zip)
 
 For the installer version, run the downloaded setup EXE. For the portable
-version, extract the ZIP and run `EasyNote.exe`. This version is published from
-the `release` branch.
+version, extract the ZIP and run `EasyNote.exe`.
 
 ## Data Location
 
