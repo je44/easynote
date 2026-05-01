@@ -11,22 +11,12 @@ WebView2 は不要です。
 
 <img src="docs/images/easynote-preview.png" alt="EasyNote preview" width="409" />
 
-## Release ブランチについて
+## このバージョンについて
 
-この `release` ブランチは EasyNote のダウンロード可能な Windows ビルドです。
-`main` ブランチは、他のユーザーや開発者が使う公開ベースラインとして残しています。
+このブランチは日常利用におすすめのバージョンです。個人開発をせずに EasyNote をそのまま使いたい場合は、下の
+[インストール](#インストール) セクションからインストーラーまたはポータブル版をダウンロードしてください。
 
-`main` と比べて、このブランチには現在以下の変更が含まれます。
-
-- より広い個人向け WPF UI と、やわらかいベージュ系の見た目
-- プレビューに合わせた Todo / Done ナビゲーションと空状態レイアウト
-- ToDo 追加用のインライン下書き入力
-- ピン留め項目の表示強化と、項目操作状態の調整
-- 日中 / 夜間の目にやさしいテーマ切り替えと、その状態保存
-- ポータブルモードで既存 AppData の ToDo とウィンドウ状態を移行する処理
-- このブランチ専用の README プレビュー画像
-
-共有開発には `main` を使い、配布版の個人向け UI と操作フローを使う場合は `release` を使ってください。
+`main` ブランチは EasyNote の元になるオープンソースコードとして残しています。コードを読み、変更し、自分向けのバージョンを作りたい場合に使ってください。通常利用には release 版のダウンロードをおすすめします。
 
 ## 主な機能
 
@@ -41,47 +31,16 @@ WebView2 は不要です。
 
 ## インストール
 
-release 版の Windows 実行ファイルは GitHub Releases から直接ダウンロードできます。
+Windows 版は GitHub Releases から直接ダウンロードできます。
 
-- release 版: [EasyNote.exe](https://github.com/je44/easynote/releases/download/release-2026-04-26/EasyNote.exe)
+- [Windows x64 インストーラー](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-win-x64-setup.exe)
+- [Windows x64 ポータブル ZIP](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-portable-win-x64.zip)
+- [Windows x86 インストーラー](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-win-x86-setup.exe)
+- [Windows x86 ポータブル ZIP](https://github.com/je44/easynote/releases/download/v1.0/EasyNote-v1.0-portable-win-x86.zip)
 
-`main` ブランチはオープンソースのコードベースとして維持し、EXE ダウンロードは提供しません。
-`main` を使う場合は、下記のソース実行手順に従ってください。
-
-## ソースから実行
-
-```powershell
-dotnet restore .\easy-note-wpf.sln
-dotnet run --project .\EasyNote\EasyNote.csproj
-```
-
-## 内蔵セルフテスト
-
-```powershell
-dotnet run --project .\EasyNote\EasyNote.csproj -- --self-test
-```
-
-## パッケージ作成
-
-インストーラーとポータブル版を作成:
-
-```powershell
-.\build-windows-installer.ps1
-```
-
-ポータブル版のみを作成:
-
-```powershell
-.\build-windows-installer.ps1 -SkipInstaller
-```
+インストーラー版は、ダウンロードしたセットアップファイルを実行してください。ポータブル版は ZIP を展開して `EasyNote.exe` を実行してください。
 
 ## データ保存先
 
 - 通常モード: `%AppData%\easy-note`
 - ポータブルモード: アプリフォルダ内の `data\`
-
-## 技術スタック
-
-- WPF
-- .NET 10
-- `Hardcodet.NotifyIcon.Wpf`

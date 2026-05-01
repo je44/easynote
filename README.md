@@ -21,14 +21,6 @@ The `main` branch is kept as the original open-source code for people who want
 to read, change, or create their own version of EasyNote. For normal use,
 choose the release download instead.
 
-## 本版本说明
-
-此分支是推荐日常使用的版本。如果你只是想直接使用 EasyNote，不打算进行个人开发，请在下方
-[Install](#install) 部分下载安装版或免安装版。
-
-`main` 分支保留为 EasyNote 的原始开源代码，适合查看源码、修改和构建自己的版本。日常使用建议选择
-release 下载。
-
 ## Features
 
 - Desktop-attached note board UI
